@@ -57,9 +57,9 @@ class BaseSeeder extends Seeder
         $repo = app(SettingsRepository::class);
 
         $repo->updatePropertiesPayload('general', [
-            'app_name' => config('app.name', 'Laravel'),
-            'app_description' => 'Secure access to your application',
-            'app_copyright' => '© 2026 LARATEMP. All rights reserved.',
+            'app_name' => 'LaraTemp',
+            'app_description' => 'LaraTemp adalah boilerplate Laravel yang menyediakan arsitektur dasar, konfigurasi, dan komponen reusable untuk mempercepat development serta menjaga konsistensi antar proyek.',
+            'app_copyright' => '© 2026 | Default Institution | Alamat institusi dapat diatur melalui pengaturan aplikasi.',
             'maintenance_mode' => false,
         ]);
     }

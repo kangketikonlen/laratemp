@@ -1,29 +1,38 @@
 <?php
 
 use App\Actions\Auth\LoginUser;
+use App\Models\Settings\Institution;
 use App\Settings\GeneralSettings;
 use Livewire\Component;
 
 new class extends Component
 {
-    protected string $defaultCopyright = '© 2026 LARATEMP. All rights reserved.';
-
     public string $username = '';
     public string $loginPassword = '';
     public string $copyright = '';
 
     public function mount(): void
     {
-        $this->copyright = $this->defaultCopyright;
+        $appName = config('app.name');
+        $institutionName = 'Default Institution';
+        $institutionAddress = 'Alamat institusi dapat diatur melalui pengaturan aplikasi.';
 
         try {
             $settings = app(GeneralSettings::class);
-            $this->copyright = filled($settings->app_copyright ?? null)
-                ? $settings->app_copyright
-                : $this->defaultCopyright;
+            $appName = filled($settings->app_name ?? null) ? $settings->app_name : $appName;
         } catch (\Spatie\LaravelSettings\Exceptions\MissingSettings $exception) {
             //
         }
+
+        try {
+            $institution = Institution::query()->first();
+            $institutionName = filled($institution?->name) ? $institution->name : $institutionName;
+            $institutionAddress = filled($institution?->address) ? $institution->address : $institutionAddress;
+        } catch (\Throwable $exception) {
+            //
+        }
+
+        $this->copyright = '© ' . now()->year . ' | ' . $institutionName . ' | ' . $institutionAddress;
     }
 
     public function login()

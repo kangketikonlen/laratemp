@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Settings\InstitutionSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -11,6 +12,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(BaseSeeder::class);
+        $this->call([
+            BaseSeeder::class,
+            InstitutionSeeder::class,
+        ]);
     }
 }

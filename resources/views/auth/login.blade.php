@@ -2,6 +2,9 @@
     @php
         $appName = config('app.name');
         $appDescription = __('Secure access to your application');
+        $institutionName = config('app.name');
+        $institutionAddress = 'Alamat institusi dapat diatur melalui pengaturan aplikasi.';
+        $appCopyright = '© ' . now()->year . ' | ' . $institutionName . ' | ' . $institutionAddress;
 
         try {
             $settings = app(\App\Settings\GeneralSettings::class);
@@ -10,6 +13,16 @@
         } catch (\Spatie\LaravelSettings\Exceptions\MissingSettings $exception) {
             //
         }
+
+        try {
+            $institution = \App\Models\Settings\Institution::query()->first();
+            $institutionName = filled($institution?->name) ? $institution->name : $institutionName;
+            $institutionAddress = filled($institution?->address) ? $institution->address : $institutionAddress;
+        } catch (\Throwable $exception) {
+            //
+        }
+
+        $appCopyright = '© ' . now()->year . ' | ' . $institutionName . ' | ' . $institutionAddress;
 
         $background = asset(config('app.auth_background', 'https://placehold.co/1920x1080'));
         $logo = asset(config('app.logo', 'https://placehold.co/200x200'));
@@ -20,12 +33,18 @@
             <img src="{{ $background }}" class="h-full w-full object-cover">
             <div class="absolute inset-0 flex items-end bg-black/40 md:items-center">
                 <div class="px-6 py-8 sm:px-8 md:px-12 md:py-0 lg:px-16">
-                    <div class="max-w-md rounded-2xl bg-slate-950/55 px-6 py-5 text-white backdrop-blur-sm sm:px-7 sm:py-6">
+                    <div class="max-w-2xl rounded-2xl bg-slate-950/55 px-6 py-5 text-white backdrop-blur-sm sm:px-7 sm:py-6">
                         <h1 class="text-3xl font-bold">
                             {{ $appName }}
                         </h1>
-                        <p class="mt-3 text-sm text-white/80 sm:text-base">
+                        <p class="mt-2 text-lg font-medium text-white/90 sm:text-xl">
+                            {{ $institutionName }}
+                        </p>
+                        <p class="mt-4 text-sm leading-6 text-white/80 sm:text-base">
                             {{ $appDescription }}
+                        </p>
+                        <p class="mt-5 text-xs leading-5 text-white/65 sm:text-sm">
+                            {{ $appCopyright }}
                         </p>
                     </div>
                 </div>
