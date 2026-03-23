@@ -12,6 +12,10 @@
 }
 
 @layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+
     input:-webkit-autofill,
     input:-webkit-autofill:focus,
     input:-webkit-autofill:hover {
@@ -29,6 +33,10 @@
 
     .input-icon {
         @apply absolute left-3 top-1/2 -translate-y-1/2 text-gray-400;
+    }
+
+    .input-action-button {
+        @apply absolute inset-y-0 flex items-center text-gray-400 transition hover:text-gray-600 focus:outline-none;
     }
 
     .btn-primary {

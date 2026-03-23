@@ -57,6 +57,7 @@ class BaseSeeder extends Seeder
 
         $repo->updatePropertiesPayload('general', [
             'app_name' => config('app.name', 'Laravel'),
+            'app_description' => 'Secure access to your application',
             'maintenance_mode' => false,
         ]);
     }

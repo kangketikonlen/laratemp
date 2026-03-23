@@ -20,8 +20,10 @@
     <button
         type="button"
         @click="show = !show"
-        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+        class="input-action-button right-3"
+        :aria-label="show ? 'Hide password' : 'Show password'"
     >
-        <x-ui.icon name="eye" />
+        <x-ui.icon x-show="show" name="eye" class="h-5 w-5" />
+        <x-ui.icon x-show="!show" name="eye-slash" class="h-5 w-5" />
     </button>
 </div>

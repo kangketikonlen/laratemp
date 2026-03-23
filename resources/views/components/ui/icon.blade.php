@@ -15,9 +15,37 @@
     @break
 
     @case('eye')
-        <svg {{ $attributes->merge(['class' => 'w-5 h-5']) }} fill="none" stroke="currentColor" stroke-width="1.5">
+        <svg {{ $attributes->merge(['class' => 'w-5 h-5']) }} fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z"/>
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 15a3 3 0 100-6 3 3 0 000 6z"/>
+        </svg>
+    @break
+
+    @case('eye-slash')
+        <svg {{ $attributes->merge(['class' => 'w-5 h-5']) }} fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m3 3 18 18"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.58 10.58a2 2 0 0 0 2.84 2.84"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.88 5.09A10.94 10.94 0 0 1 12 4.88c6 0 9.75 7.12 9.75 7.12a20.1 20.1 0 0 1-4.04 4.95"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.61 6.61A20.64 20.64 0 0 0 2.25 12s3.75 7.12 9.75 7.12a10.7 10.7 0 0 0 4.21-.83"/>
+        </svg>
+    @break
+
+    @case('chevron-down')
+        <svg {{ $attributes->merge(['class' => 'w-5 h-5']) }} fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/>
+        </svg>
+    @break
+
+    @case('search')
+        <svg {{ $attributes->merge(['class' => 'w-5 h-5']) }} fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35"/>
+            <circle cx="11" cy="11" r="6"/>
+        </svg>
+    @break
+
+    @case('check')
+        <svg {{ $attributes->merge(['class' => 'w-5 h-5']) }} fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5L20 7"/>
         </svg>
     @break
 
