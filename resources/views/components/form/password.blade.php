@@ -1,9 +1,15 @@
 @props([
     'icon' => 'lock',
-    'type' => 'password',
 ])
 
-<div x-data="{ show: false }" class="relative">
+@php
+    $wireModelAttribute = collect(array_keys($attributes->getAttributes()))
+        ->first(fn (string $key) => str_starts_with($key, 'wire:model'));
+    $wireModel = $wireModelAttribute ? $attributes->get($wireModelAttribute) : null;
+    $inputName = $attributes->get('name') ?: $wireModel;
+@endphp
+
+<div class="relative">
     @if ($icon)
         <span class="input-icon">
             <x-ui.icon :name="$icon" class="text-gray-400" />
@@ -11,19 +17,13 @@
     @endif
 
     <input
-        :type="show ? 'text' : '{{ $type }}'"
+        type="password"
+        @if ($wireModelAttribute && $wireModel)
+            {{ $wireModelAttribute }}="{{ $wireModel }}"
+        @endif
         {{ $attributes->merge([
-            'class' => 'input-base ' . ($icon ? 'pl-10 ' : '') . 'pr-10',
-        ]) }}
+            'name' => $inputName,
+            'class' => 'input-base ' . ($icon ? 'input-with-icon ' : '') . 'input-with-action',
+        ])->except($wireModelAttribute ? [$wireModelAttribute] : []) }}
     >
-
-    <button
-        type="button"
-        @click="show = !show"
-        class="input-action-button right-3"
-        :aria-label="show ? 'Hide password' : 'Show password'"
-    >
-        <x-ui.icon x-show="show" name="eye" class="h-5 w-5" />
-        <x-ui.icon x-show="!show" name="eye-slash" class="h-5 w-5" />
-    </button>
 </div>

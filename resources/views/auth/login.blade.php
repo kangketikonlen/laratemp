@@ -39,7 +39,7 @@
                 </div>
 
                 <h2 class="mb-6 text-center text-lg font-semibold sm:text-xl">
-                    Login
+                    Silahkan login untuk masuk ke sistem
                 </h2>
 
                 @livewire('auth.login')

@@ -30,22 +30,11 @@
         </svg>
     @break
 
-    @case('chevron-down')
+    @case('alert-circle')
         <svg {{ $attributes->merge(['class' => 'w-5 h-5']) }} fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/>
-        </svg>
-    @break
-
-    @case('search')
-        <svg {{ $attributes->merge(['class' => 'w-5 h-5']) }} fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35"/>
-            <circle cx="11" cy="11" r="6"/>
-        </svg>
-    @break
-
-    @case('check')
-        <svg {{ $attributes->merge(['class' => 'w-5 h-5']) }} fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5L20 7"/>
+            <circle cx="12" cy="12" r="9"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v5"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 16h.01"/>
         </svg>
     @break
 

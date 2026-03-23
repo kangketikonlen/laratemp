@@ -41,10 +41,11 @@ class BaseSeeder extends Seeder
     protected function seedAdminUser(): void
     {
         $user = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
+            ['username' => 'support'],
             [
                 'name' => 'Administrator',
-                'password' => Hash::make('password'), // change later in production
+                'email' => 'admin@example.com',
+                'password' => Hash::make('PWD@1945.,'), // change later in production
             ]
         );
 
@@ -58,6 +59,7 @@ class BaseSeeder extends Seeder
         $repo->updatePropertiesPayload('general', [
             'app_name' => config('app.name', 'Laravel'),
             'app_description' => 'Secure access to your application',
+            'app_copyright' => '© 2026 LARATEMP. All rights reserved.',
             'maintenance_mode' => false,
         ]);
     }

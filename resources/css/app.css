@@ -31,6 +31,14 @@
         @apply w-full h-11 px-3 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition text-sm;
     }
 
+    .input-with-icon {
+        @apply pl-10;
+    }
+
+    .input-with-action {
+        @apply pr-10;
+    }
+
     .input-icon {
         @apply absolute left-3 top-1/2 -translate-y-1/2 text-gray-400;
     }
@@ -39,11 +47,51 @@
         @apply absolute inset-y-0 flex items-center text-gray-400 transition hover:text-gray-600 focus:outline-none;
     }
 
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-medium transition;
+    }
+
+    .btn:disabled {
+        @apply cursor-not-allowed opacity-70;
+    }
+
     .btn-primary {
-        @apply w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition shadow-sm;
+        @apply bg-blue-600 text-white shadow-sm hover:bg-blue-700;
     }
 
     .btn-secondary {
-        @apply w-full border border-gray-300 py-2.5 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition;
+        @apply border border-gray-300 hover:bg-gray-50;
+    }
+
+    .btn-danger {
+        @apply bg-red-600 text-white shadow-sm hover:bg-red-700;
+    }
+
+    .alert {
+        @apply flex items-start gap-2 rounded-lg border px-3 py-2 text-sm;
+    }
+
+    .alert-danger {
+        @apply border-red-200 bg-red-50 text-red-700;
+    }
+
+    .alert-info {
+        @apply border-blue-200 bg-blue-50 text-blue-700;
+    }
+
+    .loading-screen {
+        @apply fixed inset-0 z-50 hidden items-center justify-center bg-white/75 px-6 backdrop-blur-sm;
+    }
+
+    .loading-screen__card {
+        @apply flex w-full max-w-sm flex-col items-center gap-4 rounded-2xl bg-white px-6 py-7 text-center shadow-xl;
+    }
+
+    .loading-spinner {
+        @apply h-10 w-10 animate-spin rounded-full border-4 border-blue-100 border-t-blue-600;
+    }
+
+    .loading-spinner--button {
+        @apply h-4 w-4 border-2 border-white/40 border-t-white;
     }
 }
