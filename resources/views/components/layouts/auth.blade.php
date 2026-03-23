@@ -1,23 +1,15 @@
-@php
-    $appName = config('app.name');
-    $appDescription = 'Secure access to your application';
-
-    try {
-        $settings = app(\App\Settings\GeneralSettings::class);
-        $appName = filled($settings->app_name ?? null) ? $settings->app_name : $appName;
-        $appDescription = filled($settings->app_description ?? null) ? $settings->app_description : $appDescription;
-    } catch (\Spatie\LaravelSettings\Exceptions\MissingSettings $exception) {
-        //
-    }
-@endphp
+@props([
+    'title' => config('app.name'),
+    'description' => 'Secure access to your application',
+])
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $appName }} - {{ $appDescription }}</title>
-    <meta name="description" content="{{ $appDescription }}">
+    <title>{{ $title }} - {{ $description }}</title>
+    <meta name="description" content="{{ $description }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles

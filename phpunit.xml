@@ -29,6 +29,11 @@
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <env name="BOOTSTRAP_ADMIN_ENABLED" value="true"/>
+        <env name="BOOTSTRAP_ADMIN_NAME" value="Administrator"/>
+        <env name="BOOTSTRAP_ADMIN_EMAIL" value="admin@example.com"/>
+        <env name="BOOTSTRAP_ADMIN_USERNAME" value="support"/>
+        <env name="BOOTSTRAP_ADMIN_PASSWORD" value="testing-password"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

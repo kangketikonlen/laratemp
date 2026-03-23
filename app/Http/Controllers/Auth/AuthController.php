@@ -2,18 +2,23 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Support\Auth\AuthPageData;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    public function login()
+    public function login(): View
     {
-        return view('auth.login');
+        return view('auth.login', [
+            'page' => AuthPageData::resolve(),
+        ]);
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
 

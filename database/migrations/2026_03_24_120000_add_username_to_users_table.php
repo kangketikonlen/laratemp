@@ -87,10 +87,7 @@ return new class extends Migration
 
     protected function hasUniqueIndex(string $table, string $indexName): bool
     {
-        return DB::table('information_schema.statistics')
-            ->where('table_schema', DB::raw('DATABASE()'))
-            ->where('table_name', $table)
-            ->where('index_name', $indexName)
-            ->exists();
+        return collect(Schema::getIndexes($table))
+            ->contains(fn (array $index) => $index['name'] === $indexName && $index['unique']);
     }
 };
