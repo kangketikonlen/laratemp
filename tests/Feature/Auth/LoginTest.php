@@ -8,14 +8,15 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
+use Tests\TestCase;
 
 it('redirects the root route to login', function () {
-    /** @var \Tests\TestCase $this */
+    /** @var TestCase $this */
     $this->get('/')->assertRedirect('/login');
 });
 
 it('authenticates the seeded admin user with username and password', function () {
-    /** @var \Tests\TestCase $this */
+    /** @var TestCase $this */
     $this->seed(DatabaseSeeder::class);
     $username = (string) config('bootstrap_admin.username');
     $password = (string) config('bootstrap_admin.password');
@@ -27,7 +28,7 @@ it('authenticates the seeded admin user with username and password', function ()
 });
 
 it('rejects invalid login credentials', function () {
-    /** @var \Tests\TestCase $this */
+    /** @var TestCase $this */
     $this->seed(DatabaseSeeder::class);
     $username = (string) config('bootstrap_admin.username');
 
@@ -38,11 +39,11 @@ it('rejects invalid login credentials', function () {
 });
 
 it('rate limits repeated failed login attempts', function () {
-    /** @var \Tests\TestCase $this */
+    /** @var TestCase $this */
     $this->seed(DatabaseSeeder::class);
     $username = (string) config('bootstrap_admin.username');
 
-    $throttleKey = Str::transliterate(Str::lower($username) . '|127.0.0.1');
+    $throttleKey = Str::transliterate(Str::lower($username).'|127.0.0.1');
     RateLimiter::clear($throttleKey);
 
     foreach (range(1, 5) as $attempt) {

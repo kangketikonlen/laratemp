@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Support\Auth\AuthPageData;
 use App\Http\Controllers\Controller;
+use App\Support\Auth\AuthPageData;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

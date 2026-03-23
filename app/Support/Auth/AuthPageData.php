@@ -47,7 +47,7 @@ final readonly class AuthPageData
             appDescription: $appDescription,
             institutionName: $institutionName,
             institutionAddress: $institutionAddress,
-            copyright: '© ' . now()->year . ' | ' . $institutionName . ' | ' . $institutionAddress,
+            copyright: '© '.now()->year.' | '.$institutionName.' | '.$institutionAddress,
             background: asset(config('app.auth_background', 'https://placehold.co/1920x1080')),
             logo: asset(config('app.logo', 'https://placehold.co/200x200')),
         );

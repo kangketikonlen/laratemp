@@ -2,12 +2,14 @@
 
 use App\Models\Settings\Institution;
 use App\Models\User;
+use App\Settings\GeneralSettings;
 use Database\Seeders\DatabaseSeeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 
 it('seeds the default auth and settings data', function () {
-    /** @var \Tests\TestCase $this */
+    /** @var TestCase $this */
     $this->seed(DatabaseSeeder::class);
 
     $admin = User::query()->where('username', config('bootstrap_admin.username'))->first();
@@ -26,10 +28,10 @@ it('seeds the default auth and settings data', function () {
 });
 
 it('seeds the general settings payload', function () {
-    /** @var \Tests\TestCase $this */
+    /** @var TestCase $this */
     $this->seed(DatabaseSeeder::class);
 
-    $settings = app(\App\Settings\GeneralSettings::class);
+    $settings = app(GeneralSettings::class);
 
     expect($settings->app_name)->toBe('LaraTemp')
         ->and($settings->app_description)->toContain('boilerplate Laravel')

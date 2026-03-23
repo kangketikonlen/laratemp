@@ -1,58 +1,153 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# LaraTemp
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+LaraTemp is a Laravel 13 starter focused on a simple authenticated entry flow, reusable app settings, and a cleaner baseline for building internal applications.
 
-## About Laravel
+It currently includes:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- username-based authentication with a Livewire login form
+- login rate limiting for repeated failed attempts
+- role and permission seeding with `spatie/laravel-permission`
+- app and institution settings via `spatie/laravel-settings`
+- a seeded bootstrap admin that is configuration-driven instead of hardcoded
+- Pest feature tests for login and database seeding
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.3+
+- Laravel 13
+- Livewire 4
+- Tailwind CSS 4
+- Vite 8
+- Pest 4
 
-## Learning Laravel
+## Project Structure
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Key areas in the project:
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- `app/Actions/Auth` contains auth-related actions
+- `app/Livewire/Auth` contains the login component
+- `app/Support/Auth` contains reusable auth page metadata helpers
+- `database/seeders/Auth` contains role and bootstrap-admin seeders
+- `database/seeders/Settings` contains default settings and institution seeders
+- `resources/views/auth` contains auth page views
+- `resources/views/livewire/auth` contains Livewire Blade views
+- `tests/Feature/Auth` contains login feature coverage
+- `tests/Feature/Database` contains seeder coverage
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Getting Started
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### 1. Install dependencies
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+npm install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Prepare environment
 
-## Contributing
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3. Configure database
 
-## Code of Conduct
+Update your `.env` database values, then run:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+php artisan migrate
+```
 
-## Security Vulnerabilities
+### 4. Optional bootstrap admin
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+The bootstrap admin is controlled by environment variables and is not seeded unless a password is provided.
 
-## License
+Add these to `.env` if you want a seeded admin user:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```env
+BOOTSTRAP_ADMIN_ENABLED=true
+BOOTSTRAP_ADMIN_NAME="Administrator"
+BOOTSTRAP_ADMIN_EMAIL=admin@example.com
+BOOTSTRAP_ADMIN_USERNAME=support
+BOOTSTRAP_ADMIN_PASSWORD=change-this-password
+```
+
+If `BOOTSTRAP_ADMIN_PASSWORD` is empty, the admin seeder is skipped.
+
+### 5. Seed data
+
+```bash
+php artisan db:seed
+```
+
+### 6. Run the app
+
+For separate processes:
+
+```bash
+php artisan serve
+npm run dev
+```
+
+Or use the Composer dev script:
+
+```bash
+composer run dev
+```
+
+## Useful Commands
+
+```bash
+composer run test
+php artisan test
+npm run build
+./vendor/bin/pint
+```
+
+## Authentication Notes
+
+- The app redirects `/` to `/login`.
+- Login uses `username` and `password`.
+- Failed attempts are rate limited per username and IP address.
+- Successful login redirects to `/dashboard`.
+
+## Testing
+
+Current feature coverage includes:
+
+- root redirect to login
+- successful login with seeded admin credentials
+- invalid login rejection
+- repeated failed login rate limiting
+- role, permission, institution, and settings seeding
+
+Run the test suite with:
+
+```bash
+php artisan test
+```
+
+## Packages In Use
+
+Primary runtime packages:
+
+- `livewire/livewire`
+- `spatie/laravel-activitylog`
+- `spatie/laravel-data`
+- `spatie/laravel-permission`
+- `spatie/laravel-settings`
+
+Primary development packages:
+
+- `barryvdh/laravel-debugbar`
+- `barryvdh/laravel-ide-helper`
+- `laravel/pail`
+- `laravel/pint`
+- `pestphp/pest`
+- `phpunit/phpunit`
+
+## Notes
+
+- The auth page content is centralized through `AuthPageData` for reuse.
+- The login flow uses a standard Livewire class and Blade view pair.
+- The repo includes a `CHANGELOG.md` file for project-level change tracking.

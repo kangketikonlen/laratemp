@@ -12,7 +12,7 @@ class InstitutionSeeder extends Seeder
         Institution::query()->updateOrCreate(
             ['email' => 'info@laratemp.test'],
             [
-                'name' => "Default Institution",
+                'name' => 'Default Institution',
                 'address' => 'Jl. Contoh No. 123, Pontianak',
                 'website' => 'https://laratemp.test',
                 'appUrl' => config('app.url', 'http://localhost:8000'),

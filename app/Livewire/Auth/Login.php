@@ -14,7 +14,9 @@ class Login extends Component
     protected int $maxLoginAttempts = 5;
 
     public string $username = '';
+
     public string $loginPassword = '';
+
     public string $copyright = '';
 
     public function mount(string $copyright = ''): void
@@ -73,6 +75,6 @@ class Login extends Component
 
     protected function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->username) . '|' . request()->ip());
+        return Str::transliterate(Str::lower($this->username).'|'.request()->ip());
     }
 }
