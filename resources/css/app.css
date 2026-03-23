@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+/* Scan sources */
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+@source "../../storage/framework/views/*.php";
+@source "../**/*.blade.php";
+@source "../**/*.js";
+
+/* Theme (optional, keep minimal) */
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+    input:-webkit-autofill,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:hover {
+        -webkit-box-shadow: 0 0 0px 1000px #f9fafb inset;
+        box-shadow: 0 0 0px 1000px #f9fafb inset;
+        -webkit-text-fill-color: #111827;
+        transition: background-color 9999s ease-in-out 0s;
+    }
+}
+
+@layer components {
+    .input-base {
+        @apply w-full h-11 px-3 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition text-sm;
+    }
+
+    .input-icon {
+        @apply absolute left-3 top-1/2 -translate-y-1/2 text-gray-400;
+    }
+
+    .btn-primary {
+        @apply w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition shadow-sm;
+    }
+
+    .btn-secondary {
+        @apply w-full border border-gray-300 py-2.5 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition;
+    }
+}
