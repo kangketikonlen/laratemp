@@ -4,6 +4,27 @@ This file tracks notable project-level changes made during the recent cleanup an
 
 ## 2026-03-24
 
+### Role and module workspace
+
+- added database support for role metadata, modules, and module navigation items
+- moved role and module models into `app/Models/Settings`
+- seeded a role-based workspace structure where `General Settings` is the main module entry
+- added module navigation with these primary sections:
+  - `Master`
+  - `Settings`
+  - `Administration`
+  - `Report`
+- added sub navigation items for:
+  - `Master`: `User`, `Role`
+  - `Settings`: `Institution`, `Permission`
+  - `Administration`: `Changelogs`, `Work Progress`
+  - `Report`: `Activity Log`, `Error Report`
+- updated the dashboard to show assigned modules as landing cards
+- added a dedicated module dashboard flow and section dashboards
+- split signed-in layouts into role-level and module-level workspace shells
+- refactored repeated private UI into reusable Blade components and named CSS utilities
+- added and updated feature tests covering module navigation, sub navigation, and seeded workspace structure
+
 ### Project cleanup
 
 - removed unused Composer packages: `laravel/sanctum` and `spatie/laravel-query-builder`
@@ -36,4 +57,4 @@ This file tracks notable project-level changes made during the recent cleanup an
 ### Documentation improvements
 
 - replaced the default Laravel README with project-specific documentation
-- added this `CHANGELOGS.md` file to record notable changes
+- added this `CHANGELOG.md` file to record notable changes
