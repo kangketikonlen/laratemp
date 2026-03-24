@@ -16,7 +16,7 @@
         }
 
         if (\Illuminate\Support\Str::endsWith($routeName, '.index')) {
-            return request()->routeIs(\Illuminate\Support\Str::beforeLast($routeName, '.index').'.*');
+            return request()->routeIs(\Illuminate\Support\Str::beforeLast($routeName, '.index').'.*.*');
         }
 
         return false;
@@ -101,25 +101,25 @@
 </head>
 
 <body class="min-h-screen bg-gray-100">
-    <div class="min-h-screen bg-[#f5f7fb] lg:flex">
-        <aside class="w-full bg-[#262626] text-white lg:min-h-screen lg:w-70 lg:flex-none">
-            <div class="flex h-full flex-col px-5 py-6">
-                <div class="rounded-[28px] border border-white/10 bg-white/3 px-4 py-5 text-center">
-                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-sky-300/60 bg-sky-400/15 text-xl font-semibold text-sky-100">
+    <div class="workspace-shell">
+        <aside class="workspace-sidebar">
+            <div class="workspace-sidebar-body">
+                <div class="workspace-sidebar-card">
+                    <div class="workspace-sidebar-avatar">
                         {{ strtoupper(str($authUser?->name ?? $authUser?->username ?? 'U')->substr(0, 1)) }}
                     </div>
-                    <p class="mt-4 text-sm font-medium text-white/95">{{ $authUser?->name ?? $authUser?->username }}</p>
-                    <p class="mt-1 text-xs leading-5 text-white/65">{{ $primaryRole }}</p>
-                    <p class="text-xs leading-5 text-white/65">{{ config('app.name') }}</p>
+                    <p class="workspace-user-name">{{ $authUser?->name ?? $authUser?->username }}</p>
+                    <p class="workspace-user-meta">{{ $primaryRole }}</p>
+                    <p class="workspace-app-meta">{{ config('app.name') }}</p>
                 </div>
 
-                <nav class="mt-6 space-y-2">
+                <nav class="workspace-nav">
                     <a
                         href="{{ $moduleDashboardRoute }}"
                         @class([
-                            'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition',
-                            'bg-white/8 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]' => $isOnModuleDashboard,
-                            'text-white/75 hover:bg-white/6 hover:text-white' => ! $isOnModuleDashboard,
+                            'workspace-nav-link',
+                            'workspace-nav-link--active' => $isOnModuleDashboard,
+                            'workspace-nav-link--idle' => ! $isOnModuleDashboard,
                         ])
                     >
                         <x-ui.icon name="dashboard" class="h-4 w-4" />
@@ -134,29 +134,29 @@
                             $icon = $navIconMap[$item->name] ?? 'sparkles';
                         @endphp
 
-                        <div class="space-y-2">
+                        <div class="workspace-nav-group">
                             @if ($hasRoute)
                                 <a
                                     href="{{ route($item->route_name) }}"
                                     @class([
-                                        'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition',
-                                        'bg-white/8 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]' => $isCurrent,
-                                        'text-white/75 hover:bg-white/6 hover:text-white' => ! $isCurrent,
+                                        'workspace-nav-link',
+                                        'workspace-nav-link--active' => $isCurrent,
+                                        'workspace-nav-link--idle' => ! $isCurrent,
                                     ])
                                 >
                                     <x-ui.icon :name="$icon" class="h-4 w-4" />
-                                    <span class="flex-1">{{ $item->name }}</span>
-                                    <x-ui.icon name="chevron-right" class="h-4 w-4 text-white/45" />
+                                    <span class="workspace-nav-label-text">{{ $item->name }}</span>
+                                    <x-ui.icon name="chevron-right" class="workspace-nav-chevron" />
                                 </a>
                             @else
-                                <span class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-white/75">
+                                <span class="workspace-nav-label">
                                     <x-ui.icon :name="$icon" class="h-4 w-4" />
-                                    <span class="flex-1">{{ $item->name }}</span>
+                                    <span class="workspace-nav-label-text">{{ $item->name }}</span>
                                 </span>
                             @endif
 
                             @if ($children->isNotEmpty())
-                                <div class="ml-5 space-y-1 border-l border-white/10 pl-4">
+                                <div class="workspace-subnav">
                                     @foreach ($children as $child)
                                         @php
                                             $childHasRoute = filled($child->route_name) && \Illuminate\Support\Facades\Route::has($child->route_name);
@@ -167,15 +167,15 @@
                                             <a
                                                 href="{{ route($child->route_name) }}"
                                                 @class([
-                                                    'block rounded-lg px-3 py-2 text-sm transition',
-                                                    'bg-sky-400/15 font-medium text-sky-100' => $childCurrent,
-                                                    'text-white/60 hover:bg-white/5 hover:text-white/90' => ! $childCurrent,
+                                                    'workspace-subnav-link',
+                                                    'workspace-subnav-link--active' => $childCurrent,
+                                                    'workspace-subnav-link--idle' => ! $childCurrent,
                                                 ])
                                             >
                                                 {{ $child->name }}
                                             </a>
                                         @else
-                                            <span class="block rounded-lg px-3 py-2 text-sm text-white/60">
+                                            <span class="workspace-subnav-link workspace-subnav-link--idle">
                                                 {{ $child->name }}
                                             </span>
                                         @endif
@@ -186,13 +186,13 @@
                     @endforeach
                 </nav>
 
-                <div class="mt-auto pt-6 text-xs text-white/40">
+                <div class="workspace-footer">
                     Crafted for {{ config('app.name') }}
                 </div>
             </div>
         </aside>
 
-        <main class="min-w-0 flex-1 px-5 py-6 sm:px-8 lg:px-10">
+        <main class="workspace-main">
             {{ $slot }}
         </main>
     </div>

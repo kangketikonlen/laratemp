@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Master\RoleController;
 use App\Http\Controllers\Master\UserController;
 use App\Models\Settings\Institution;
 use App\Models\Settings\Module;
@@ -64,11 +65,6 @@ Route::middleware('auth')->group(function () {
         'description' => 'Master data and foundational resources live here.',
     ])->name('master.index');
 
-    Route::view('/master/roles', 'auth.module', [
-        'title' => 'Role',
-        'description' => 'Manage role records from the master section.',
-    ])->name('master.roles.index');
-
     Route::view('/settings', 'auth.module', [
         'title' => 'Settings',
         'description' => 'Choose a settings module from the navigation below.',
@@ -92,7 +88,14 @@ Route::middleware('auth')->group(function () {
         Route::match(['put', 'patch'], '/master/users/{user}', [UserController::class, 'update'])->name('master.users.update');
         Route::delete('/master/users/{user}', [UserController::class, 'destroy'])->name('master.users.destroy');
 
-        Route::get('/general-settings', function () {
+        Route::get('/master/roles', [RoleController::class, 'index'])->name('master.roles.index');
+        Route::get('/master/roles/create', [RoleController::class, 'create'])->name('master.roles.create');
+        Route::post('/master/roles', [RoleController::class, 'store'])->name('master.roles.store');
+        Route::get('/master/roles/{role}/edit', [RoleController::class, 'edit'])->name('master.roles.edit');
+        Route::match(['put', 'patch'], '/master/roles/{role}', [RoleController::class, 'update'])->name('master.roles.update');
+        Route::delete('/master/roles/{role}', [RoleController::class, 'destroy'])->name('master.roles.destroy');
+
+        Route::get('/general', function () {
             $user = request()->user();
 
             abort_unless($user instanceof User, 403);

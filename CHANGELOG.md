@@ -25,9 +25,14 @@ This file tracks notable project-level changes made during the recent cleanup an
 - refactored repeated private UI into reusable Blade components and named CSS utilities
 - added and updated feature tests covering module navigation, sub navigation, and seeded workspace structure
 - added `master/users` CRUD with search, create, edit, delete, role assignment, and self-delete protection
+- added `master/roles` CRUD with search, create, edit, delete, module assignment, and system-role protection
+- added an Alpine-based WYSIWYG editor for role descriptions with server-side rich-text sanitizing
+- changed the General Settings module dashboard path from `/general-settings` to `/general`
+- fixed sidebar active-state matching so `Module Home` stays active on the module dashboard
 - kept `Master > User` navigation active across index, create, and edit routes
 - extracted reusable form and feedback Blade components to keep CRUD screens cleaner and reduce repeated markup
 - reduced inline Tailwind-heavy markup by moving repeated UI patterns into named utility classes
+- pushed more workspace and dashboard layout styling into reusable `workspace-*` and `dashboard-*` CSS utilities
 
 ### Project cleanup
 

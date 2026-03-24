@@ -137,6 +137,22 @@ it('shows the master sub navigation items when opening a master child page', fun
         ->assertSeeText('Add User');
 });
 
+it('shows the master roles page for the admin', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $user = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($user)
+        ->get(route('master.roles.index'))
+        ->assertOk()
+        ->assertSeeText('Master')
+        ->assertSeeText('User')
+        ->assertSeeText('Role')
+        ->assertSeeText('Daftar Role')
+        ->assertSeeText('Add Role')
+        ->assertSeeText('Administrator');
+});
+
 it('shows the settings sub navigation items when opening a settings child page', function () {
     /** @var TestCase $this */
     $this->seed(DatabaseSeeder::class);
@@ -264,5 +280,116 @@ it('prevents the admin from deleting the currently authenticated user', function
 
     $this->assertDatabaseHas('users', [
         'id' => $admin->id,
+    ]);
+});
+
+it('allows the admin to create a role from the master roles page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $module = \App\Models\Settings\Module::query()->where('slug', 'settings.general')->firstOrFail();
+
+    $this->actingAs($admin)
+        ->post(route('master.roles.store'), [
+            'name' => 'operator_support',
+            'display_name' => 'Operator Support',
+            'description' => 'Support role for day-to-day operations.',
+            'modules' => [$module->id],
+        ])
+        ->assertRedirect(route('master.roles.index'));
+
+    $createdRole = Role::query()->where('name', 'operator_support')->firstOrFail();
+
+    expect($createdRole->display_name)->toBe('Operator Support')
+        ->and($createdRole->guard_name)->toBe('web')
+        ->and($createdRole->description)->toBe('Support role for day-to-day operations.')
+        ->and($createdRole->modules()->pluck('modules.id')->all())->toBe([$module->id]);
+});
+
+it('allows the admin to update a non-system role from the master roles page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $role = Role::query()->create([
+        'name' => 'operator_support',
+        'guard_name' => 'web',
+        'display_name' => 'Operator Support',
+        'description' => 'Old description',
+        'is_system' => false,
+    ]);
+
+    $this->actingAs($admin)
+        ->put(route('master.roles.update', $role), [
+            'name' => 'operator_lead',
+            'display_name' => 'Operator Lead',
+            'description' => 'Updated description',
+            'modules' => [],
+        ])
+        ->assertRedirect(route('master.roles.index'));
+
+    $role->refresh();
+
+    expect($role->name)->toBe('operator_lead')
+        ->and($role->display_name)->toBe('Operator Lead')
+        ->and($role->description)->toBe('Updated description');
+});
+
+it('prevents the admin from updating a system role', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $role = Role::query()->where('name', 'admin')->firstOrFail();
+
+    $this->actingAs($admin)
+        ->put(route('master.roles.update', $role), [
+            'name' => 'renamed_admin',
+            'display_name' => 'Renamed Admin',
+            'description' => 'Should not change',
+            'modules' => [],
+        ])
+        ->assertRedirect(route('master.roles.index'))
+        ->assertSessionHasErrors('role');
+
+    $role->refresh();
+
+    expect($role->name)->toBe('admin')
+        ->and($role->display_name)->toBe('Administrator');
+});
+
+it('allows the admin to delete a non-system role from the master roles page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $role = Role::query()->create([
+        'name' => 'temporary_role',
+        'guard_name' => 'web',
+        'display_name' => 'Temporary Role',
+        'description' => 'Delete me',
+        'is_system' => false,
+    ]);
+
+    $this->actingAs($admin)
+        ->delete(route('master.roles.destroy', $role))
+        ->assertRedirect(route('master.roles.index'));
+
+    $this->assertDatabaseMissing('roles', [
+        'id' => $role->id,
+    ]);
+});
+
+it('prevents the admin from deleting a system role', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $role = Role::query()->where('name', 'admin')->firstOrFail();
+
+    $this->actingAs($admin)
+        ->delete(route('master.roles.destroy', $role))
+        ->assertRedirect(route('master.roles.index'))
+        ->assertSessionHasErrors('role');
+
+    $this->assertDatabaseHas('roles', [
+        'id' => $role->id,
+        'name' => 'admin',
     ]);
 });
