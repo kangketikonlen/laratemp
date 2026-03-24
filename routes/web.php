@@ -1,13 +1,15 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Master\UserController;
 use App\Models\Settings\Institution;
-use App\Models\Settings\Role;
+use App\Models\Settings\Module;
 use App\Models\Settings\NavigationItem;
+use App\Models\Settings\Role;
 use App\Models\User;
-use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Route;
+use Spatie\Permission\Models\Permission;
 
 Route::redirect('/', '/login');
 
@@ -24,7 +26,7 @@ Route::middleware('auth')->group(function () {
 
         $user->load('roles.modules');
 
-        /** @var Collection<int, \App\Models\Settings\Module> $modules */
+        /** @var Collection<int, Module> $modules */
         $modules = $user->roles
             ->flatMap(fn ($role) => $role->modules)
             ->where('is_active', true)
@@ -62,11 +64,6 @@ Route::middleware('auth')->group(function () {
         'description' => 'Master data and foundational resources live here.',
     ])->name('master.index');
 
-    Route::view('/master/users', 'auth.module', [
-        'title' => 'User',
-        'description' => 'Manage user records from the master section.',
-    ])->name('master.users.index');
-
     Route::view('/master/roles', 'auth.module', [
         'title' => 'Role',
         'description' => 'Manage role records from the master section.',
@@ -88,6 +85,13 @@ Route::middleware('auth')->group(function () {
     ])->name('settings.permissions.index');
 
     Route::middleware('can:manage settings')->group(function () {
+        Route::get('/master/users', [UserController::class, 'index'])->name('master.users.index');
+        Route::get('/master/users/create', [UserController::class, 'create'])->name('master.users.create');
+        Route::post('/master/users', [UserController::class, 'store'])->name('master.users.store');
+        Route::get('/master/users/{user}/edit', [UserController::class, 'edit'])->name('master.users.edit');
+        Route::match(['put', 'patch'], '/master/users/{user}', [UserController::class, 'update'])->name('master.users.update');
+        Route::delete('/master/users/{user}', [UserController::class, 'destroy'])->name('master.users.destroy');
+
         Route::get('/general-settings', function () {
             $user = request()->user();
 

@@ -153,6 +153,106 @@
         @apply inline-flex h-10 items-center justify-center rounded-lg border border-sky-300 bg-white px-3 text-sm font-medium text-sky-600 transition hover:bg-sky-50;
     }
 
+    .private-toolbar {
+        @apply mb-5 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:flex-row lg:items-center lg:justify-between;
+    }
+
+    .private-search {
+        @apply w-full max-w-xl;
+    }
+
+    .private-inline-actions {
+        @apply flex items-center gap-3;
+    }
+
+    .private-table-shell {
+        @apply overflow-hidden rounded-2xl border border-slate-200;
+    }
+
+    .private-table {
+        @apply min-w-full divide-y divide-slate-200 bg-white text-sm text-slate-700;
+    }
+
+    .private-table thead {
+        @apply bg-slate-50 text-xs uppercase tracking-[0.16em] text-slate-500;
+    }
+
+    .private-table th {
+        @apply px-4 py-3 text-left font-semibold;
+    }
+
+    .private-table td {
+        @apply px-4 py-4 align-top;
+    }
+
+    .private-table tbody tr {
+        @apply border-t border-slate-100;
+    }
+
+    .private-table-primary {
+        @apply font-semibold text-slate-900;
+    }
+
+    .private-table-muted {
+        @apply text-sm text-slate-500;
+    }
+
+    .private-table-actions {
+        @apply flex flex-wrap justify-end gap-2;
+    }
+
+    .private-role-badge {
+        @apply inline-flex rounded-full bg-sky-100 px-2.5 py-1 text-xs font-medium text-sky-700;
+    }
+
+    .private-role-list {
+        @apply flex flex-wrap gap-2;
+    }
+
+    .private-form-grid {
+        @apply grid gap-5 lg:grid-cols-2;
+    }
+
+    .private-field {
+        @apply space-y-2;
+    }
+
+    .private-field-span-2 {
+        @apply lg:col-span-2;
+    }
+
+    .private-label {
+        @apply text-sm font-medium text-slate-700;
+    }
+
+    .private-error {
+        @apply text-sm text-red-600;
+    }
+
+    .private-checkbox-grid {
+        @apply grid gap-3 md:grid-cols-2;
+    }
+
+    .private-checkbox-card {
+        @apply flex gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700;
+    }
+
+    .private-checkbox-card input {
+        @apply mt-1 h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500;
+    }
+
+    .private-checkbox-title {
+        @apply block font-medium text-slate-900;
+    }
+
+    .private-checkbox-description {
+        @apply mt-1 block text-sm leading-6 text-slate-500;
+    }
+
+    .private-form-actions {
+        @apply flex flex-wrap items-center justify-end gap-3 border-t border-slate-200 pt-5;
+    }
+
     .dashboard-hero {
         @apply overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/90 shadow-[0_24px_80px_-40px_rgba(15,23,42,0.45)] backdrop-blur;
     }

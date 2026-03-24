@@ -24,6 +24,10 @@ This file tracks notable project-level changes made during the recent cleanup an
 - split signed-in layouts into role-level and module-level workspace shells
 - refactored repeated private UI into reusable Blade components and named CSS utilities
 - added and updated feature tests covering module navigation, sub navigation, and seeded workspace structure
+- added `master/users` CRUD with search, create, edit, delete, role assignment, and self-delete protection
+- kept `Master > User` navigation active across index, create, and edit routes
+- extracted reusable form and feedback Blade components to keep CRUD screens cleaner and reduce repeated markup
+- reduced inline Tailwind-heavy markup by moving repeated UI patterns into named utility classes
 
 ### Project cleanup
 

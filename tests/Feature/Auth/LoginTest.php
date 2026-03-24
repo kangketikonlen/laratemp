@@ -2,6 +2,7 @@
 
 use App\Actions\Auth\LoginUser;
 use App\Livewire\Auth\Login;
+use App\Models\Settings\Role;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Support\Facades\RateLimiter;
@@ -131,7 +132,9 @@ it('shows the master sub navigation items when opening a master child page', fun
         ->assertSeeText('Master')
         ->assertSeeText('User')
         ->assertSeeText('Role')
-        ->assertSeeText('Section Dashboard');
+        ->assertSeeText('Master Data Management')
+        ->assertSeeText('Daftar User')
+        ->assertSeeText('Add User');
 });
 
 it('shows the settings sub navigation items when opening a settings child page', function () {
@@ -174,4 +177,92 @@ it('shows the report sub navigation items when opening a report child page', fun
         ->assertSeeText('Activity Log')
         ->assertSeeText('Error Report')
         ->assertSeeText('Section Dashboard');
+});
+
+it('allows the admin to create a user from the master users page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $role = Role::query()->where('name', 'admin')->firstOrFail();
+
+    $this->actingAs($admin)
+        ->post(route('master.users.store'), [
+            'name' => 'Jane Operator',
+            'username' => 'jane_operator',
+            'email' => 'jane@example.com',
+            'password' => 'secret-pass-1',
+            'password_confirmation' => 'secret-pass-1',
+            'roles' => [$role->name],
+        ])
+        ->assertRedirect(route('master.users.index'));
+
+    $createdUser = User::query()->where('username', 'jane_operator')->firstOrFail();
+
+    expect($createdUser->name)->toBe('Jane Operator')
+        ->and($createdUser->email)->toBe('jane@example.com')
+        ->and($createdUser->hasRole($role))->toBeTrue();
+});
+
+it('allows the admin to update a user from the master users page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $managedUser = User::query()->create([
+        'name' => 'Old Name',
+        'username' => 'old_name',
+        'email' => 'old@example.com',
+        'password' => 'secret-pass-1',
+    ]);
+
+    $this->actingAs($admin)
+        ->put(route('master.users.update', $managedUser), [
+            'name' => 'New Name',
+            'username' => 'new_name',
+            'email' => 'new@example.com',
+            'password' => '',
+            'password_confirmation' => '',
+            'roles' => [],
+        ])
+        ->assertRedirect(route('master.users.index'));
+
+    $managedUser->refresh();
+
+    expect($managedUser->name)->toBe('New Name')
+        ->and($managedUser->username)->toBe('new_name')
+        ->and($managedUser->email)->toBe('new@example.com');
+});
+
+it('allows the admin to delete another user from the master users page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $managedUser = User::query()->create([
+        'name' => 'Delete Me',
+        'username' => 'delete_me',
+        'email' => 'delete@example.com',
+        'password' => 'secret-pass-1',
+    ]);
+
+    $this->actingAs($admin)
+        ->delete(route('master.users.destroy', $managedUser))
+        ->assertRedirect(route('master.users.index'));
+
+    $this->assertDatabaseMissing('users', [
+        'id' => $managedUser->id,
+    ]);
+});
+
+it('prevents the admin from deleting the currently authenticated user', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($admin)
+        ->delete(route('master.users.destroy', $admin))
+        ->assertRedirect(route('master.users.index'))
+        ->assertSessionHasErrors('user');
+
+    $this->assertDatabaseHas('users', [
+        'id' => $admin->id,
+    ]);
 });

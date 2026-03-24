@@ -6,6 +6,21 @@
 @php
     /** @var \App\Models\User|null $authUser */
     $authUser = request()->user();
+    $routeMatches = function (?string $routeName): bool {
+        if (blank($routeName) || ! \Illuminate\Support\Facades\Route::has($routeName)) {
+            return false;
+        }
+
+        if (request()->routeIs($routeName)) {
+            return true;
+        }
+
+        if (\Illuminate\Support\Str::endsWith($routeName, '.index')) {
+            return request()->routeIs(\Illuminate\Support\Str::beforeLast($routeName, '.index').'.*');
+        }
+
+        return false;
+    };
 
     $navbarItems = collect();
     $subnavbarItems = collect();
@@ -26,14 +41,12 @@
             ->sortBy(['sort_order', 'name'])
             ->values();
 
-        $activeModule = $assignedModules->first(function ($module) {
-            if (filled($module->route_name) && \Illuminate\Support\Facades\Route::has($module->route_name) && request()->routeIs($module->route_name)) {
+        $activeModule = $assignedModules->first(function ($module) use ($routeMatches) {
+            if ($routeMatches($module->route_name)) {
                 return true;
             }
 
-            return $module->navigationItems->contains(fn ($item) => filled($item->route_name)
-                && \Illuminate\Support\Facades\Route::has($item->route_name)
-                && request()->routeIs($item->route_name));
+            return $module->navigationItems->contains(fn ($item) => $routeMatches($item->route_name));
         }) ?? $assignedModules->first();
 
         if ($activeModule) {
@@ -49,16 +62,14 @@
 
             $navbarItems = $moduleNavigation->whereNull('parent_id')->values();
 
-            $activeNavbar = $navbarItems->first(function ($item) use ($moduleNavigation) {
-                if (filled($item->route_name) && \Illuminate\Support\Facades\Route::has($item->route_name) && request()->routeIs($item->route_name)) {
+            $activeNavbar = $navbarItems->first(function ($item) use ($moduleNavigation, $routeMatches) {
+                if ($routeMatches($item->route_name)) {
                     return true;
                 }
 
                 return $moduleNavigation
                     ->where('parent_id', $item->id)
-                    ->contains(fn ($child) => filled($child->route_name)
-                        && \Illuminate\Support\Facades\Route::has($child->route_name)
-                        && request()->routeIs($child->route_name));
+                    ->contains(fn ($child) => $routeMatches($child->route_name));
             });
 
             if ($activeNavbar) {
@@ -149,7 +160,7 @@
                                     @foreach ($children as $child)
                                         @php
                                             $childHasRoute = filled($child->route_name) && \Illuminate\Support\Facades\Route::has($child->route_name);
-                                            $childCurrent = $childHasRoute && request()->routeIs($child->route_name);
+                                            $childCurrent = $childHasRoute && $routeMatches($child->route_name);
                                         @endphp
 
                                         @if ($childHasRoute)
