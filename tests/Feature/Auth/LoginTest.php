@@ -65,3 +65,113 @@ it('rate limits repeated failed login attempts', function () {
 
     RateLimiter::clear($throttleKey);
 });
+
+it('shows the assigned module list on the dashboard', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $user = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertSeeText('Available Modules')
+        ->assertSeeText('General Settings')
+        ->assertSeeText('settings.general')
+        ->assertSeeText('Default Institution')
+        ->assertSeeText('Catatan Pembaruan')
+        ->assertDontSeeText('Back to dashboard');
+});
+
+it('allows the admin to open the general settings module page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $user = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($user)
+        ->get(route('settings.general'))
+        ->assertOk()
+        ->assertSeeText('Selamat datang di dashboard General Settings')
+        ->assertSeeText('General Settings')
+        ->assertSeeText('Section Utama')
+        ->assertSeeText('Master')
+        ->assertSeeText('Settings')
+        ->assertSeeText('Administration')
+        ->assertSeeText('Report');
+});
+
+it('shows the module navbar for authenticated users', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $user = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($user)
+        ->get(route('master.index'))
+        ->assertOk()
+        ->assertSeeText('Dashboard')
+        ->assertSeeText('Master')
+        ->assertSeeText('Settings')
+        ->assertSeeText('Administration')
+        ->assertSeeText('Report')
+        ->assertSeeText('Section Dashboard')
+        ->assertSeeText('Back to module')
+        ->assertSeeText('User')
+        ->assertSeeText('Role')
+        ->assertDontSeeText('Institution')
+        ->assertDontSeeText('Permission');
+});
+
+it('shows the master sub navigation items when opening a master child page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $user = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($user)
+        ->get(route('master.users.index'))
+        ->assertOk()
+        ->assertSeeText('Master')
+        ->assertSeeText('User')
+        ->assertSeeText('Role')
+        ->assertSeeText('Section Dashboard');
+});
+
+it('shows the settings sub navigation items when opening a settings child page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $user = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($user)
+        ->get(route('settings.institutions.index'))
+        ->assertOk()
+        ->assertSeeText('Settings')
+        ->assertSeeText('Institution')
+        ->assertSeeText('Permission')
+        ->assertSeeText('Section Dashboard');
+});
+
+it('shows the administration sub navigation items when opening an administration child page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $user = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($user)
+        ->get(route('administration.changelogs.index'))
+        ->assertOk()
+        ->assertSeeText('Administration')
+        ->assertSeeText('Changelogs')
+        ->assertSeeText('Work Progress')
+        ->assertSeeText('Section Dashboard');
+});
+
+it('shows the report sub navigation items when opening a report child page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $user = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($user)
+        ->get(route('report.activity-log.index'))
+        ->assertOk()
+        ->assertSeeText('Report')
+        ->assertSeeText('Activity Log')
+        ->assertSeeText('Error Report')
+        ->assertSeeText('Section Dashboard');
+});
