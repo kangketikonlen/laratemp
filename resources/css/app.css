@@ -289,6 +289,14 @@
         @apply bg-rose-100 text-rose-700;
     }
 
+    .private-role-badge--error-error {
+        @apply bg-rose-100 text-rose-700;
+    }
+
+    .private-role-badge--error-warning {
+        @apply bg-amber-100 text-amber-700;
+    }
+
     .private-role-list {
         @apply flex flex-wrap gap-2;
     }
@@ -627,6 +635,10 @@
 
     .activity-log-detail-empty {
         @apply mt-3 text-sm text-slate-500;
+    }
+
+    .error-log-trace {
+        @apply mt-3 overflow-x-auto rounded-2xl border border-slate-200 bg-slate-950 px-4 py-4 text-xs leading-6 text-slate-100;
     }
 
     .permission-library-code {

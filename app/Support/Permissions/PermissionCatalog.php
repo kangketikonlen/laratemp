@@ -99,6 +99,15 @@ final class PermissionCatalog
                     ['name' => 'view_activity_logs', 'label' => 'View', 'description' => 'Melihat daftar activity log.'],
                 ],
             ],
+            [
+                'key' => 'error_logs',
+                'title' => 'Error Logs',
+                'description' => 'Kontrol akses untuk melihat laporan error aplikasi yang tercatat otomatis.',
+                'bulk_label' => 'View Access',
+                'permissions' => [
+                    ['name' => 'view_error_logs', 'label' => 'View', 'description' => 'Melihat daftar error log.'],
+                ],
+            ],
         ];
     }
 

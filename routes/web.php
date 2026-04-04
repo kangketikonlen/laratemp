@@ -4,8 +4,11 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Administration\ChangelogController;
 use App\Http\Controllers\Administration\WorkProgressController;
 use App\Http\Controllers\Report\ActivityLogController;
+use App\Http\Controllers\Report\ErrorLogController;
 use App\Models\Administration\Changelog;
 use App\Models\Administration\WorkProgress;
+use App\Models\Report\ActivityLog;
+use App\Models\Report\ErrorLog;
 use App\Http\Controllers\Master\RoleController;
 use App\Http\Controllers\Master\UserController;
 use App\Http\Controllers\Settings\InstitutionController;
@@ -163,14 +166,23 @@ Route::middleware('auth')->group(function () {
 
             abort_unless($module, 403);
 
+            $isGeneralModule = $module->slug === 'general';
+
             return view('auth.module-dashboard', [
                 'module' => $module,
                 'navigationItems' => $module->navigationItems()
                     ->whereNull('parent_id')
                     ->where('is_active', true)
+                    ->with(['children' => fn ($query) => $query->where('is_active', true)])
                     ->orderBy('sort_order')
                     ->orderBy('name')
                     ->get(),
+                'activitySummaryLogs' => $isGeneralModule
+                    ? ActivityLog::query()->latest('logged_at')->limit(3)->get(['id', 'activity', 'actor', 'logged_at', 'details'])
+                    : collect(),
+                'errorSummaryLogs' => $isGeneralModule
+                    ? ErrorLog::query()->latest('occurred_at')->limit(3)->get(['id', 'exception_class', 'message', 'level', 'occurred_at'])
+                    : collect(),
             ]);
         })->name('general');
     });
@@ -226,8 +238,9 @@ Route::middleware('auth')->group(function () {
         ->names('report.activity-log')
         ->only(['index', 'show']);
 
-    Route::view('/report/error-report', 'auth.module', [
-        'title' => 'Error Report',
-        'description' => 'Review error reports from the report section.',
-    ])->name('report.error-report.index');
+    Route::middleware('can:view_error_logs')
+        ->resource('report/error-logs', ErrorLogController::class)
+        ->names('report.error-report')
+        ->parameters(['error-logs' => 'errorLog'])
+        ->only(['index', 'show']);
 });

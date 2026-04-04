@@ -4,7 +4,9 @@ use App\Actions\Auth\LoginUser;
 use App\Models\Administration\Changelog;
 use App\Models\Administration\WorkProgress;
 use App\Models\Report\ActivityLog;
+use App\Models\Report\ErrorLog;
 use App\Models\Settings\Institution;
+use App\Support\ErrorLogs\ErrorLogRecorder;
 use App\Livewire\Auth\Login;
 use App\Models\Settings\Role;
 use App\Models\User;
@@ -113,6 +115,26 @@ it('allows the admin to open the general settings module page', function () {
     /** @var TestCase $this */
     $this->seed(DatabaseSeeder::class);
     $user = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    ActivityLog::query()->create([
+        'activity' => 'General settings opened',
+        'actor' => $user->username,
+        'category' => 'operations',
+        'status' => 'info',
+        'logged_at' => now(),
+        'details' => '<ul><li>Path: general</li></ul>',
+    ]);
+    ErrorLog::query()->create([
+        'exception_class' => \RuntimeException::class,
+        'message' => 'General settings sample error',
+        'level' => 'error',
+        'path' => 'general',
+        'method' => 'GET',
+        'user_identifier' => $user->username,
+        'file' => base_path('app/Http/Controllers/GeneralController.php'),
+        'line' => 12,
+        'trace' => '#0 app/Http/Controllers/GeneralController.php:12 index',
+        'occurred_at' => now(),
+    ]);
 
     $this->actingAs($user)
         ->get(route('general'))
@@ -123,7 +145,11 @@ it('allows the admin to open the general settings module page', function () {
         ->assertSeeText('Master')
         ->assertSeeText('Settings')
         ->assertSeeText('Administration')
-        ->assertSeeText('Report');
+        ->assertSeeText('Report')
+        ->assertSeeText('Ringkasan Aktivitas')
+        ->assertSeeText('Ringkasan Error')
+        ->assertSeeText('General settings opened')
+        ->assertSeeText('General settings sample error');
 });
 
 it('shows the module navbar for authenticated users', function () {
@@ -618,6 +644,73 @@ it('shows the report sub navigation items when opening a report child page', fun
         ->assertSeeText('Error Report')
         ->assertSeeText('Activity Timeline')
         ->assertSeeText('Activity Records');
+});
+
+it('shows the error report page with recorded errors', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    ErrorLog::query()->create([
+        'exception_class' => \RuntimeException::class,
+        'message' => 'Payment gateway timeout',
+        'level' => 'error',
+        'path' => 'report/error-logs',
+        'method' => 'GET',
+        'user_identifier' => $admin->username,
+        'file' => base_path('app/Services/PaymentService.php'),
+        'line' => 44,
+        'trace' => "#0 app/Services/PaymentService.php:44 process\n#1 app/Http/Controllers/CheckoutController.php:18 pay",
+        'occurred_at' => now(),
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('report.error-report.index'))
+        ->assertOk()
+        ->assertSeeText('Error Timeline')
+        ->assertSeeText('Payment gateway timeout')
+        ->assertSeeText('RuntimeException')
+        ->assertSeeText('Detail');
+});
+
+it('shows the error report detail page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $log = ErrorLog::query()->create([
+        'exception_class' => \InvalidArgumentException::class,
+        'message' => 'Invalid report filter',
+        'level' => 'warning',
+        'path' => 'report/error-logs',
+        'method' => 'GET',
+        'user_identifier' => $admin->username,
+        'file' => base_path('app/Http/Controllers/Report/ErrorLogController.php'),
+        'line' => 31,
+        'trace' => "#0 app/Http/Controllers/Report/ErrorLogController.php:31 index",
+        'occurred_at' => now(),
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('report.error-report.show', $log))
+        ->assertOk()
+        ->assertSeeText('Error Detail')
+        ->assertSeeText('InvalidArgumentException')
+        ->assertSeeText('Invalid report filter')
+        ->assertSeeText('Trace');
+});
+
+it('records exceptions into the error logs table', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+
+    ErrorLogRecorder::record(new \RuntimeException('Synthetic exception for testing'));
+
+    $this->assertDatabaseHas('error_logs', [
+        'exception_class' => \RuntimeException::class,
+        'message' => 'Synthetic exception for testing',
+        'level' => 'error',
+    ]);
 });
 
 it('shows automatically logged activity entries on the report page', function () {
