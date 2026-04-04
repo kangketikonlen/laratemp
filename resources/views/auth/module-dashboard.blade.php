@@ -14,12 +14,12 @@
 
         <x-private.notice
             :title="'Selamat datang di dashboard '.$module->name.', '.(auth()->user()?->name ?? auth()->user()?->username).'.'"
-            :message="$module->description.' Gunakan menu di sidebar untuk berpindah antar section, atau pilih section utama dari ringkasan berikut.'"
+            :message="$module->description.' Module ini merangkum pengelolaan master data, pengaturan aplikasi, administrasi operasional, dan laporan internal dalam satu workspace.'"
         />
 
         <x-private.panel
             title="Section Utama"
-            description="Ringkasan area kerja yang tersedia di dalam module ini."
+            description="Ringkasan section utama di dalam General Settings untuk membantu Anda langsung masuk ke area kerja yang dibutuhkan."
             :badge="$navigationItems->count().' section'.($navigationItems->count() === 1 ? '' : 's')"
         >
             @if ($navigationItems->isEmpty())
