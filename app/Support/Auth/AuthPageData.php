@@ -4,6 +4,7 @@ namespace App\Support\Auth;
 
 use App\Models\Settings\Institution;
 use App\Settings\GeneralSettings;
+use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelSettings\Exceptions\MissingSettings;
 use Throwable;
 
@@ -25,6 +26,7 @@ final readonly class AuthPageData
         $appDescription = 'Secure access to your application';
         $institutionName = config('app.name');
         $institutionAddress = 'Alamat institusi dapat diatur melalui pengaturan aplikasi.';
+        $institution = null;
 
         try {
             $settings = app(GeneralSettings::class);
@@ -42,14 +44,25 @@ final readonly class AuthPageData
             //
         }
 
+        $background = config('app.auth_background', 'https://placehold.co/1920x1080');
+        $logo = config('app.logo', 'https://placehold.co/200x200');
+
+        if (filled($institution?->background ?? null)) {
+            $background = Storage::disk('public')->url($institution->background);
+        }
+
+        if (filled($institution?->logo ?? null)) {
+            $logo = Storage::disk('public')->url($institution->logo);
+        }
+
         return new self(
             appName: $appName,
             appDescription: $appDescription,
             institutionName: $institutionName,
             institutionAddress: $institutionAddress,
             copyright: '© '.now()->year.' | '.$institutionName.' | '.$institutionAddress,
-            background: asset(config('app.auth_background', 'https://placehold.co/1920x1080')),
-            logo: asset(config('app.logo', 'https://placehold.co/200x200')),
+            background: str_starts_with($background, 'http') ? $background : asset($background),
+            logo: str_starts_with($logo, 'http') ? $logo : asset($logo),
         );
     }
 }

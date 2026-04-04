@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Master\RoleController;
 use App\Http\Controllers\Master\UserController;
+use App\Http\Controllers\Settings\InstitutionController;
 use App\Models\Settings\Institution;
 use App\Models\Settings\Module;
 use App\Models\Settings\NavigationItem;
@@ -70,17 +71,15 @@ Route::middleware('auth')->group(function () {
         'description' => 'Choose a settings module from the navigation below.',
     ])->name('settings.index');
 
-    Route::view('/settings/institutions', 'auth.module', [
-        'title' => 'Institution',
-        'description' => 'Manage institution records from the settings section.',
-    ])->name('settings.institutions.index');
-
     Route::view('/settings/permissions', 'auth.module', [
         'title' => 'Permission',
         'description' => 'Manage permission records from the settings section.',
     ])->name('settings.permissions.index');
 
     Route::middleware('can:manage settings')->group(function () {
+        Route::get('/settings/institutions', [InstitutionController::class, 'index'])->name('settings.institutions.index');
+        Route::put('/settings/institutions', [InstitutionController::class, 'update'])->name('settings.institutions.update');
+
         Route::get('/master/users', [UserController::class, 'index'])->name('master.users.index');
         Route::get('/master/users/create', [UserController::class, 'create'])->name('master.users.create');
         Route::post('/master/users', [UserController::class, 'store'])->name('master.users.store');

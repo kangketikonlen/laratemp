@@ -1,11 +1,14 @@
 <?php
 
 use App\Actions\Auth\LoginUser;
+use App\Models\Settings\Institution;
 use App\Livewire\Auth\Login;
 use App\Models\Settings\Role;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
@@ -164,7 +167,50 @@ it('shows the settings sub navigation items when opening a settings child page',
         ->assertSeeText('Settings')
         ->assertSeeText('Institution')
         ->assertSeeText('Permission')
-        ->assertSeeText('Section Dashboard');
+        ->assertSeeText('Institution Settings')
+        ->assertSeeText('Branding Institution')
+        ->assertSeeText('Application Logo');
+});
+
+it('allows the admin to update institution branding from the settings page', function () {
+    /** @var TestCase $this */
+    Storage::fake('public');
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $logo = UploadedFile::fake()->image('logo.png', 300, 300);
+    $background = UploadedFile::fake()->image('background.png', 1600, 900);
+
+    $this->actingAs($admin)
+        ->put(route('settings.institutions.update'), [
+            'name' => 'PT Example Baru',
+            'address' => 'Jl. Baru No. 77, Jakarta',
+            'email' => 'branding@example.test',
+            'website' => 'https://example.test',
+            'appUrl' => 'https://app.example.test',
+            'contact' => '+62 811 1111 1111',
+            'logo' => $logo,
+            'background' => $background,
+        ])
+        ->assertRedirect(route('settings.institutions.index'));
+
+    $institution = Institution::query()->firstOrFail();
+
+    expect($institution->name)->toBe('PT Example Baru')
+        ->and($institution->email)->toBe('branding@example.test')
+        ->and($institution->logo)->not->toBeNull()
+        ->and($institution->background)->not->toBeNull();
+
+    Storage::disk('public')->assertExists($institution->logo);
+    Storage::disk('public')->assertExists($institution->background);
+
+    $this->post(route('logout'));
+
+    $this->get(route('login'))
+        ->assertOk()
+        ->assertSeeText('PT Example Baru')
+        ->assertSee(Storage::disk('public')->url($institution->logo), false)
+        ->assertSee(Storage::disk('public')->url($institution->background), false);
 });
 
 it('shows the administration sub navigation items when opening an administration child page', function () {
