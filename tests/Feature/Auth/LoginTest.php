@@ -3,6 +3,7 @@
 use App\Actions\Auth\LoginUser;
 use App\Models\Administration\Changelog;
 use App\Models\Administration\WorkProgress;
+use App\Models\Report\ActivityLog;
 use App\Models\Settings\Institution;
 use App\Livewire\Auth\Login;
 use App\Models\Settings\Role;
@@ -32,6 +33,12 @@ it('authenticates the seeded admin user with username and password', function ()
     app(LoginUser::class)->handle($username, $password);
 
     $this->assertAuthenticatedAs($user);
+    $this->assertDatabaseHas('activity_logs', [
+        'activity' => 'User logged in',
+        'actor' => $username,
+        'category' => 'security',
+        'status' => 'success',
+    ]);
 });
 
 it('rejects invalid login credentials', function () {
@@ -609,7 +616,121 @@ it('shows the report sub navigation items when opening a report child page', fun
         ->assertSeeText('Report')
         ->assertSeeText('Activity Log')
         ->assertSeeText('Error Report')
-        ->assertSeeText('Section Dashboard');
+        ->assertSeeText('Activity Timeline')
+        ->assertSeeText('Activity Records');
+});
+
+it('shows automatically logged activity entries on the report page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $role = Role::query()->where('name', 'admin')->firstOrFail();
+
+    $this->actingAs($admin)
+        ->post(route('master.users.store'), [
+            'name' => 'Activity Logger',
+            'username' => 'activity_logger',
+            'email' => 'activity-logger@example.com',
+            'password' => 'secret-pass-1',
+            'password_confirmation' => 'secret-pass-1',
+            'roles' => [$role->name],
+        ])
+        ->assertRedirect(route('master.users.index'));
+
+    $this->actingAs($admin)
+        ->get(route('report.activity-log.index'))
+        ->assertOk()
+        ->assertSeeText('Created user account')
+        ->assertSeeText('activity_logger')
+        ->assertSeeText('Detail')
+        ->assertDontSeeText('Add Activity')
+        ->assertDontSeeText('Edit')
+        ->assertDontSeeText('Delete');
+});
+
+it('shows the activity log detail page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $role = Role::query()->where('name', 'admin')->firstOrFail();
+
+    $this->actingAs($admin)
+        ->post(route('master.users.store'), [
+            'name' => 'Detail Logger',
+            'username' => 'detail_logger',
+            'email' => 'detail-logger@example.com',
+            'password' => 'secret-pass-1',
+            'password_confirmation' => 'secret-pass-1',
+            'roles' => [$role->name],
+        ])
+        ->assertRedirect(route('master.users.index'));
+
+    $log = ActivityLog::query()
+        ->where('activity', 'Created user account')
+        ->where('details', 'like', '%detail_logger%')
+        ->latest('id')
+        ->firstOrFail();
+
+    $this->actingAs($admin)
+        ->get(route('report.activity-log.show', $log))
+        ->assertOk()
+        ->assertSeeText('Activity Detail')
+        ->assertSeeText('Created user account')
+        ->assertSeeText('detail_logger')
+        ->assertSeeText('Full Detail')
+        ->assertSeeText('Previous')
+        ->assertSeeText('Next');
+});
+
+it('navigates to previous and next activity logs from the detail page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $oldest = ActivityLog::query()->create([
+        'activity' => 'Oldest activity',
+        'actor' => 'System',
+        'category' => 'system',
+        'status' => 'info',
+        'logged_at' => '2026-04-05 08:00:00',
+    ]);
+    $middle = ActivityLog::query()->create([
+        'activity' => 'Middle activity',
+        'actor' => 'System',
+        'category' => 'operations',
+        'status' => 'warning',
+        'logged_at' => '2026-04-05 09:00:00',
+    ]);
+    $latest = ActivityLog::query()->create([
+        'activity' => 'Latest activity',
+        'actor' => 'System',
+        'category' => 'security',
+        'status' => 'success',
+        'logged_at' => '2026-04-05 10:00:00',
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('report.activity-log.show', $middle))
+        ->assertOk()
+        ->assertSee(route('report.activity-log.show', $latest), false)
+        ->assertSee(route('report.activity-log.show', $oldest), false);
+});
+
+it('logs logout activity automatically', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($admin)
+        ->post(route('logout'))
+        ->assertRedirect(route('login'));
+
+    $this->assertDatabaseHas('activity_logs', [
+        'activity' => 'User logged out',
+        'actor' => $admin->username,
+        'category' => 'security',
+        'status' => 'info',
+    ]);
 });
 
 it('allows the admin to create a user from the master users page', function () {

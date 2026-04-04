@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Administration\ChangelogController;
 use App\Http\Controllers\Administration\WorkProgressController;
+use App\Http\Controllers\Report\ActivityLogController;
 use App\Models\Administration\Changelog;
 use App\Models\Administration\WorkProgress;
 use App\Http\Controllers\Master\RoleController;
@@ -220,10 +221,10 @@ Route::middleware('auth')->group(function () {
         'description' => 'Reporting modules and summaries will be available here.',
     ])->name('report.index');
 
-    Route::view('/report/activity-log', 'auth.module', [
-        'title' => 'Activity Log',
-        'description' => 'Review activity log entries from the report section.',
-    ])->name('report.activity-log.index');
+    Route::middleware('can:view_activity_logs')->group(function () {
+        Route::get('/report/activity-log', [ActivityLogController::class, 'index'])->name('report.activity-log.index');
+        Route::get('/report/activity-log/{activityLog}', [ActivityLogController::class, 'show'])->name('report.activity-log.show');
+    });
 
     Route::view('/report/error-report', 'auth.module', [
         'title' => 'Error Report',

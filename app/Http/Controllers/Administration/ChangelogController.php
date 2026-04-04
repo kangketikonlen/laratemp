@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\StoreChangelogRequest;
 use App\Http\Requests\Administration\UpdateChangelogRequest;
 use App\Models\Administration\Changelog;
+use App\Support\ActivityLogs\LogsUserActivity;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ChangelogController extends Controller
 {
+    use LogsUserActivity;
+
     public function index(Request $request): View
     {
         $search = trim((string) $request->string('search'));
@@ -75,6 +78,18 @@ class ChangelogController extends Controller
             ],
         ));
 
+        $this->logUserActivity(
+            activity: 'Created changelog',
+            category: 'operations',
+            status: 'success',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'version' => $changelog->version,
+                'title' => $changelog->title,
+            ],
+        );
+
         return redirect()
             ->route('administration.changelogs.index')
             ->with('status', "Changelog {$changelog->version} berhasil dibuat.");
@@ -101,6 +116,18 @@ class ChangelogController extends Controller
             ],
         ));
 
+        $this->logUserActivity(
+            activity: 'Updated changelog',
+            category: 'operations',
+            status: 'success',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'version' => $changelog->version,
+                'title' => $changelog->title,
+            ],
+        );
+
         return redirect()
             ->route('administration.changelogs.index')
             ->with('status', "Changelog {$changelog->version} berhasil diperbarui.");
@@ -112,6 +139,17 @@ class ChangelogController extends Controller
 
         $version = $changelog->version;
         $changelog->delete();
+
+        $this->logUserActivity(
+            activity: 'Deleted changelog',
+            category: 'operations',
+            status: 'warning',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'version' => $version,
+            ],
+        );
 
         return redirect()
             ->route('administration.changelogs.index')

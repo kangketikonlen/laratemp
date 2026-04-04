@@ -7,6 +7,7 @@ use App\Http\Requests\Master\StoreUserRequest;
 use App\Http\Requests\Master\UpdateUserRequest;
 use App\Models\Settings\Role;
 use App\Models\User;
+use App\Support\ActivityLogs\LogsUserActivity;
 use App\Support\Permissions\PermissionCatalog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -14,6 +15,8 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    use LogsUserActivity;
+
     public function index(Request $request): View
     {
         $search = trim((string) $request->string('search'));
@@ -75,6 +78,18 @@ class UserController extends Controller
         $user->syncRoles($request->validatedRoleNames());
         $user->syncPermissions($request->validatedPermissionNames());
 
+        $this->logUserActivity(
+            activity: 'Created user account',
+            category: 'user',
+            status: 'success',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'username' => $user->username,
+                'roles' => $request->validatedRoleNames(),
+            ],
+        );
+
         return redirect()
             ->route('master.users.index')
             ->with('status', "User {$user->username} berhasil dibuat.");
@@ -102,6 +117,18 @@ class UserController extends Controller
         $user->syncRoles($request->validatedRoleNames());
         $user->syncPermissions($request->validatedPermissionNames());
 
+        $this->logUserActivity(
+            activity: 'Updated user account',
+            category: 'user',
+            status: 'success',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'username' => $user->username,
+                'roles' => $request->validatedRoleNames(),
+            ],
+        );
+
         return redirect()
             ->route('master.users.index')
             ->with('status', "User {$user->username} berhasil diperbarui.");
@@ -120,6 +147,17 @@ class UserController extends Controller
         $username = $user->username;
 
         $user->delete();
+
+        $this->logUserActivity(
+            activity: 'Deleted user account',
+            category: 'user',
+            status: 'warning',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'username' => $username,
+            ],
+        );
 
         return redirect()
             ->route('master.users.index')

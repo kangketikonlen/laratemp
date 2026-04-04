@@ -90,6 +90,15 @@ final class PermissionCatalog
                     ['name' => 'delete_permissions', 'label' => 'Delete', 'description' => 'Menghapus permission custom.'],
                 ],
             ],
+            [
+                'key' => 'activity_logs',
+                'title' => 'Activity Log',
+                'description' => 'Kontrol akses untuk melihat laporan aktivitas user dan sistem secara otomatis.',
+                'bulk_label' => 'View Access',
+                'permissions' => [
+                    ['name' => 'view_activity_logs', 'label' => 'View', 'description' => 'Melihat daftar activity log.'],
+                ],
+            ],
         ];
     }
 

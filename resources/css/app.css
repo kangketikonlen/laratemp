@@ -149,6 +149,10 @@
         @apply inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50;
     }
 
+    .private-action-link--disabled {
+        @apply cursor-not-allowed opacity-50 hover:bg-white;
+    }
+
     .private-icon-button {
         @apply inline-flex h-10 w-10 items-center justify-center rounded-lg border border-sky-300 bg-white text-sky-600 transition hover:bg-sky-50;
     }
@@ -250,6 +254,38 @@
     }
 
     .private-role-badge--priority-high {
+        @apply bg-rose-100 text-rose-700;
+    }
+
+    .private-role-badge--category-system {
+        @apply bg-slate-100 text-slate-700;
+    }
+
+    .private-role-badge--category-security {
+        @apply bg-rose-100 text-rose-700;
+    }
+
+    .private-role-badge--category-user {
+        @apply bg-sky-100 text-sky-700;
+    }
+
+    .private-role-badge--category-operations {
+        @apply bg-violet-100 text-violet-700;
+    }
+
+    .private-role-badge--status-info {
+        @apply bg-sky-100 text-sky-700;
+    }
+
+    .private-role-badge--status-warning {
+        @apply bg-amber-100 text-amber-700;
+    }
+
+    .private-role-badge--status-success {
+        @apply bg-emerald-100 text-emerald-700;
+    }
+
+    .private-role-badge--status-critical {
         @apply bg-rose-100 text-rose-700;
     }
 
@@ -551,6 +587,46 @@
 
     .dashboard-progress-empty-copy {
         @apply mt-1 text-sm leading-6 text-slate-500;
+    }
+
+    .activity-log-detail-grid {
+        @apply grid gap-4 md:grid-cols-2 xl:grid-cols-4;
+    }
+
+    .activity-log-detail-card {
+        @apply flex flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4;
+    }
+
+    .activity-log-detail-label {
+        @apply text-xs font-semibold uppercase tracking-[0.18em] text-slate-400;
+    }
+
+    .activity-log-detail-value {
+        @apply text-sm font-semibold text-slate-900;
+    }
+
+    .activity-log-detail-panel {
+        @apply mt-5 rounded-2xl border border-slate-200 bg-white px-5 py-5;
+    }
+
+    .activity-log-detail-heading {
+        @apply text-sm font-semibold uppercase tracking-[0.18em] text-slate-500;
+    }
+
+    .activity-log-detail-copy {
+        @apply mt-3 text-base font-semibold text-slate-900;
+    }
+
+    .activity-log-detail-richtext {
+        @apply mt-3 space-y-3 text-sm leading-7 text-slate-700;
+    }
+
+    .activity-log-detail-richtext ul {
+        @apply list-disc pl-5;
+    }
+
+    .activity-log-detail-empty {
+        @apply mt-3 text-sm text-slate-500;
     }
 
     .permission-library-code {

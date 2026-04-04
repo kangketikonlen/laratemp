@@ -7,6 +7,7 @@ use App\Http\Requests\Master\StoreRoleRequest;
 use App\Http\Requests\Master\UpdateRoleRequest;
 use App\Models\Settings\Module;
 use App\Models\Settings\Role;
+use App\Support\ActivityLogs\LogsUserActivity;
 use App\Support\Permissions\PermissionCatalog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -14,6 +15,8 @@ use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
+    use LogsUserActivity;
+
     public function index(Request $request): View
     {
         $search = trim((string) $request->string('search'));
@@ -77,6 +80,18 @@ class RoleController extends Controller
         $role->modules()->sync($request->validatedModuleIds());
         $role->syncPermissions($request->validatedPermissionNames());
 
+        $this->logUserActivity(
+            activity: 'Created role',
+            category: 'user',
+            status: 'success',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'role' => $role->name,
+                'modules' => collect($role->modules)->pluck('name')->all(),
+            ],
+        );
+
         return redirect()
             ->route('master.roles.index')
             ->with('status', "Role {$role->name} berhasil dibuat.");
@@ -112,6 +127,18 @@ class RoleController extends Controller
         $role->modules()->sync($request->validatedModuleIds());
         $role->syncPermissions($request->validatedPermissionNames());
 
+        $this->logUserActivity(
+            activity: 'Updated role',
+            category: 'user',
+            status: 'success',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'role' => $role->name,
+                'modules' => $role->modules()->pluck('name')->all(),
+            ],
+        );
+
         return redirect()
             ->route('master.roles.index')
             ->with('status', "Role {$role->name} berhasil diperbarui.");
@@ -129,6 +156,17 @@ class RoleController extends Controller
 
         $roleName = $role->name;
         $role->delete();
+
+        $this->logUserActivity(
+            activity: 'Deleted role',
+            category: 'user',
+            status: 'warning',
+            user: request()->user(),
+            request: request(),
+            context: [
+                'role' => $roleName,
+            ],
+        );
 
         return redirect()
             ->route('master.roles.index')

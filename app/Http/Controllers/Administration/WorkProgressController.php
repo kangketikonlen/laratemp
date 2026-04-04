@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\StoreWorkProgressRequest;
 use App\Http\Requests\Administration\UpdateWorkProgressRequest;
 use App\Models\Administration\WorkProgress;
+use App\Support\ActivityLogs\LogsUserActivity;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class WorkProgressController extends Controller
 {
+    use LogsUserActivity;
+
     public function index(Request $request): View
     {
         $search = trim((string) $request->string('search'));
@@ -79,6 +82,19 @@ class WorkProgressController extends Controller
             ],
         ));
 
+        $this->logUserActivity(
+            activity: 'Created work progress item',
+            category: 'operations',
+            status: 'success',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'title' => $item->title,
+                'status' => $item->status,
+                'progress' => $item->progress.'%',
+            ],
+        );
+
         return redirect()
             ->route('administration.work-progress.index')
             ->with('status', "Progress {$item->title} berhasil dibuat.");
@@ -103,6 +119,19 @@ class WorkProgressController extends Controller
             ['updated_by' => $actor],
         ));
 
+        $this->logUserActivity(
+            activity: 'Updated work progress item',
+            category: 'operations',
+            status: 'success',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'title' => $workProgress->title,
+                'status' => $workProgress->status,
+                'progress' => $workProgress->progress.'%',
+            ],
+        );
+
         return redirect()
             ->route('administration.work-progress.index')
             ->with('status', "Progress {$workProgress->title} berhasil diperbarui.");
@@ -114,6 +143,17 @@ class WorkProgressController extends Controller
 
         $title = $workProgress->title;
         $workProgress->delete();
+
+        $this->logUserActivity(
+            activity: 'Deleted work progress item',
+            category: 'operations',
+            status: 'warning',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'title' => $title,
+            ],
+        );
 
         return redirect()
             ->route('administration.work-progress.index')
