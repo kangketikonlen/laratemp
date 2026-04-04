@@ -225,6 +225,34 @@
         @apply bg-slate-200 text-slate-700;
     }
 
+    .private-role-badge--planned {
+        @apply bg-slate-100 text-slate-700;
+    }
+
+    .private-role-badge--in_progress {
+        @apply bg-sky-100 text-sky-700;
+    }
+
+    .private-role-badge--done {
+        @apply bg-emerald-100 text-emerald-700;
+    }
+
+    .private-role-badge--blocked {
+        @apply bg-rose-100 text-rose-700;
+    }
+
+    .private-role-badge--priority-low {
+        @apply bg-emerald-50 text-emerald-700;
+    }
+
+    .private-role-badge--priority-medium {
+        @apply bg-amber-100 text-amber-700;
+    }
+
+    .private-role-badge--priority-high {
+        @apply bg-rose-100 text-rose-700;
+    }
+
     .private-role-list {
         @apply flex flex-wrap gap-2;
     }
@@ -443,6 +471,86 @@
 
     .changelog-form-meta-grid {
         @apply grid gap-5 xl:grid-cols-3;
+    }
+
+    .work-progress-meter {
+        @apply flex min-w-36 items-center gap-3;
+    }
+
+    .work-progress-meter-track {
+        @apply h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200;
+    }
+
+    .work-progress-meter-fill {
+        @apply block h-full rounded-full bg-sky-500;
+    }
+
+    .work-progress-meter-label {
+        @apply text-sm font-semibold text-slate-700;
+    }
+
+    .work-progress-form-preview {
+        @apply flex flex-col justify-center rounded-2xl border border-sky-100 bg-sky-50 px-4 py-4;
+    }
+
+    .work-progress-form-preview-label {
+        @apply text-xs font-semibold uppercase tracking-[0.22em] text-sky-600;
+    }
+
+    .work-progress-form-preview-copy {
+        @apply mt-2 text-sm leading-6 text-sky-800;
+    }
+
+    .dashboard-progress-list {
+        @apply space-y-3;
+    }
+
+    .dashboard-progress-card {
+        @apply rounded-2xl border border-slate-200 bg-slate-50/80 p-4;
+    }
+
+    .dashboard-progress-card--empty {
+        @apply border-dashed bg-slate-50;
+    }
+
+    .dashboard-progress-head {
+        @apply flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between;
+    }
+
+    .dashboard-progress-title {
+        @apply truncate text-sm font-semibold text-slate-900;
+    }
+
+    .dashboard-progress-meta {
+        @apply mt-1 text-sm text-slate-500;
+    }
+
+    .dashboard-progress-tags {
+        @apply flex flex-wrap gap-2;
+    }
+
+    .dashboard-progress-meter {
+        @apply mt-4 flex items-center gap-3;
+    }
+
+    .dashboard-progress-meter-track {
+        @apply h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200;
+    }
+
+    .dashboard-progress-meter-fill {
+        @apply block h-full rounded-full bg-sky-500;
+    }
+
+    .dashboard-progress-percent {
+        @apply text-sm font-semibold text-slate-700;
+    }
+
+    .dashboard-progress-empty-title {
+        @apply text-sm font-semibold text-slate-800;
+    }
+
+    .dashboard-progress-empty-copy {
+        @apply mt-1 text-sm leading-6 text-slate-500;
     }
 
     .permission-library-code {

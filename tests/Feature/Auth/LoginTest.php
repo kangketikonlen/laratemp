@@ -2,6 +2,7 @@
 
 use App\Actions\Auth\LoginUser;
 use App\Models\Administration\Changelog;
+use App\Models\Administration\WorkProgress;
 use App\Models\Settings\Institution;
 use App\Livewire\Auth\Login;
 use App\Models\Settings\Role;
@@ -76,6 +77,14 @@ it('shows the assigned module list on the dashboard', function () {
     /** @var TestCase $this */
     $this->seed(DatabaseSeeder::class);
     $user = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    WorkProgress::query()->create([
+        'title' => 'Ship dashboard progress widget',
+        'owner' => 'Platform Team',
+        'status' => 'in_progress',
+        'priority' => 'high',
+        'progress' => 72,
+        'target_date' => '2026-04-06',
+    ]);
 
     $this->actingAs($user)
         ->get(route('dashboard'))
@@ -87,6 +96,9 @@ it('shows the assigned module list on the dashboard', function () {
         ->assertSeeText('Catatan Pembaruan')
         ->assertSeeText('v1.2.0')
         ->assertSeeText('Role and User Access Manager')
+        ->assertSeeText('Agenda Berjalan')
+        ->assertSeeText('Ship dashboard progress widget')
+        ->assertSeeText('72%')
         ->assertDontSeeText('Back to dashboard');
 });
 
@@ -121,7 +133,7 @@ it('shows the module navbar for authenticated users', function () {
         ->assertSeeText('Administration')
         ->assertSeeText('Report')
         ->assertSeeText('Section Dashboard')
-        ->assertSeeText('Back to module')
+        ->assertSeeText('Back to dashboard')
         ->assertSeeText('User')
         ->assertSeeText('Role')
         ->assertDontSeeText('Institution')
@@ -496,6 +508,93 @@ it('allows the admin to delete a changelog from the administration section', fun
 
     $this->assertDatabaseMissing('changelogs', [
         'id' => $changelog->id,
+    ]);
+});
+
+it('shows the work progress page for the admin', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $user = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($user)
+        ->get(route('administration.work-progress.index'))
+        ->assertOk()
+        ->assertSeeText('Work Progress')
+        ->assertSeeText('Work Progress Board')
+        ->assertSeeText('Progress Tracker');
+});
+
+it('allows the admin to create a work progress item from the administration section', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($admin)
+        ->post(route('administration.work-progress.store'), [
+            'title' => 'Finalize dashboard rollout',
+            'owner' => 'Platform Team',
+            'status' => 'in_progress',
+            'priority' => 'high',
+            'progress' => 65,
+            'target_date' => '2026-04-10',
+            'notes' => '<p>Main rollout is in progress and waiting for final QA.</p>',
+        ])
+        ->assertRedirect(route('administration.work-progress.index'));
+
+    $item = WorkProgress::query()->where('title', 'Finalize dashboard rollout')->firstOrFail();
+
+    expect($item->owner)->toBe('Platform Team')
+        ->and($item->status)->toBe('in_progress')
+        ->and($item->progress)->toBe(65);
+});
+
+it('allows the admin to update a work progress item from the administration section', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $item = WorkProgress::query()->create([
+        'title' => 'Prepare release communication',
+        'owner' => 'Ops Team',
+        'status' => 'planned',
+        'priority' => 'medium',
+        'progress' => 20,
+    ]);
+
+    $this->actingAs($admin)
+        ->put(route('administration.work-progress.update', $item), [
+            'title' => 'Prepare release communication',
+            'owner' => 'Ops Team',
+            'status' => 'done',
+            'priority' => 'medium',
+            'progress' => 100,
+            'target_date' => '2026-04-08',
+            'notes' => '<p>Communication deck has been shared with stakeholders.</p>',
+        ])
+        ->assertRedirect(route('administration.work-progress.index'));
+
+    $item->refresh();
+
+    expect($item->status)->toBe('done')
+        ->and($item->progress)->toBe(100);
+});
+
+it('allows the admin to delete a work progress item from the administration section', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $item = WorkProgress::query()->create([
+        'title' => 'Remove this progress',
+        'status' => 'planned',
+        'priority' => 'low',
+        'progress' => 0,
+    ]);
+
+    $this->actingAs($admin)
+        ->delete(route('administration.work-progress.destroy', $item))
+        ->assertRedirect(route('administration.work-progress.index'));
+
+    $this->assertDatabaseMissing('work_progress', [
+        'id' => $item->id,
     ]);
 });
 

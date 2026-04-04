@@ -20,15 +20,15 @@
     @endphp
 
     <div class="private-page">
-        <x-private.page-header title="Changelog Timeline" subtitle="Catat rilis, pembaruan, dan perubahan penting aplikasi dalam satu tempat.">
+        <x-private.page-header title="Work Progress Board" subtitle="Pantau tugas, pemilik kerja, dan status penyelesaiannya dari satu tempat.">
             <x-slot:actions>
                 <a href="{{ route('dashboard') }}" class="private-action-link">
                     <span>Back to dashboard</span>
                 </a>
 
-                @canany(['manage settings', 'create_changelogs'])
-                    <a href="{{ route('administration.changelogs.create') }}" class="private-text-button">
-                        <span>Add Changelog</span>
+                @canany(['manage settings', 'create_work_progress'])
+                    <a href="{{ route('administration.work-progress.create') }}" class="private-text-button">
+                        <span>Add Progress</span>
                     </a>
                 @endcanany
             </x-slot:actions>
@@ -43,17 +43,17 @@
         @endif
 
         <x-private.panel
-            title="Release Notes"
-            description="Gunakan changelog untuk membantu tim memahami apa yang berubah pada setiap versi."
-            :badge="$changelogs->total().' records'"
+            title="Progress Tracker"
+            description="Gunakan halaman ini untuk memantau pekerjaan yang sedang berjalan, prioritas, dan target penyelesaiannya."
+            :badge="$items->total().' records'"
         >
-            <form method="GET" action="{{ route('administration.changelogs.index') }}" class="private-toolbar">
+            <form method="GET" action="{{ route('administration.work-progress.index') }}" class="private-toolbar">
                 <div class="private-search">
                     <x-form.input
                         name="search"
                         :value="$search"
                         icon="clipboard"
-                        placeholder="Cari versi, judul, status, atau isi release note..."
+                        placeholder="Cari judul, owner, status, priority, atau catatan..."
                         autocomplete="off"
                     />
 
@@ -65,14 +65,14 @@
                     <x-ui.button type="submit" variant="secondary" :block="false">Search</x-ui.button>
 
                     @if (filled($search))
-                        <a href="{{ route('administration.changelogs.index') }}" class="private-action-link">Reset</a>
+                        <a href="{{ route('administration.work-progress.index') }}" class="private-action-link">Reset</a>
                     @endif
                 </div>
             </form>
 
-            @if ($changelogs->isEmpty())
+            @if ($items->isEmpty())
                 <div class="private-panel-empty">
-                    Belum ada changelog yang cocok dengan filter saat ini. Tambahkan catatan rilis baru atau ubah kata kunci pencarian.
+                    Belum ada pekerjaan yang cocok dengan filter saat ini. Tambahkan progress baru atau ubah kata kunci pencarian.
                 </div>
             @else
                 <div class="private-table-shell">
@@ -80,15 +80,15 @@
                         <thead>
                             <tr>
                                 <th>
-                                    <a href="{{ $sortUrl('version') }}" class="private-table-sort">
-                                        <span>Version</span>
-                                        <span aria-hidden="true">{{ $sortIcon('version') }}</span>
+                                    <a href="{{ $sortUrl('title') }}" class="private-table-sort">
+                                        <span>Work Item</span>
+                                        <span aria-hidden="true">{{ $sortIcon('title') }}</span>
                                     </a>
                                 </th>
                                 <th>
-                                    <a href="{{ $sortUrl('title') }}" class="private-table-sort">
-                                        <span>Title</span>
-                                        <span aria-hidden="true">{{ $sortIcon('title') }}</span>
+                                    <a href="{{ $sortUrl('owner') }}" class="private-table-sort">
+                                        <span>Owner</span>
+                                        <span aria-hidden="true">{{ $sortIcon('owner') }}</span>
                                     </a>
                                 </th>
                                 <th>
@@ -98,20 +98,29 @@
                                     </a>
                                 </th>
                                 <th>
-                                    <a href="{{ $sortUrl('released_at') }}" class="private-table-sort">
-                                        <span>Released</span>
-                                        <span aria-hidden="true">{{ $sortIcon('released_at') }}</span>
+                                    <a href="{{ $sortUrl('priority') }}" class="private-table-sort">
+                                        <span>Priority</span>
+                                        <span aria-hidden="true">{{ $sortIcon('priority') }}</span>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="{{ $sortUrl('progress') }}" class="private-table-sort">
+                                        <span>Progress</span>
+                                        <span aria-hidden="true">{{ $sortIcon('progress') }}</span>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="{{ $sortUrl('target_date') }}" class="private-table-sort">
+                                        <span>Target</span>
+                                        <span aria-hidden="true">{{ $sortIcon('target_date') }}</span>
                                     </a>
                                 </th>
                                 <th class="text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($changelogs as $entry)
+                            @foreach ($items as $entry)
                                 <tr>
-                                    <td>
-                                        <div class="private-table-primary">{{ $entry->version }}</div>
-                                    </td>
                                     <td>
                                         <div class="private-table-primary">{{ $entry->title }}</div>
                                         @if (filled($entry->previewText()))
@@ -119,24 +128,38 @@
                                         @endif
                                     </td>
                                     <td>
+                                        <span class="private-table-muted">{{ $entry->owner ?: 'Unassigned' }}</span>
+                                    </td>
+                                    <td>
                                         <span class="private-role-badge private-role-badge--{{ $entry->status }}">{{ \Illuminate\Support\Str::headline($entry->status) }}</span>
                                     </td>
                                     <td>
-                                        <span class="private-table-muted">{{ $entry->released_at?->format('d M Y') ?: 'Not scheduled' }}</span>
+                                        <span class="private-role-badge private-role-badge--priority-{{ $entry->priority }}">{{ ucfirst($entry->priority) }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="work-progress-meter">
+                                            <div class="work-progress-meter-track">
+                                                <span class="work-progress-meter-fill" style="width: {{ max(0, min(100, $entry->progress)) }}%"></span>
+                                            </div>
+                                            <span class="work-progress-meter-label">{{ $entry->progress }}%</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="private-table-muted">{{ $entry->target_date?->format('d M Y') ?: 'No target' }}</span>
                                     </td>
                                     <td>
                                         <div class="private-table-actions">
-                                            @canany(['manage settings', 'update_changelogs'])
-                                                <a href="{{ route('administration.changelogs.edit', $entry) }}" class="private-action-link">
+                                            @canany(['manage settings', 'update_work_progress'])
+                                                <a href="{{ route('administration.work-progress.edit', $entry) }}" class="private-action-link">
                                                     Edit
                                                 </a>
                                             @endcanany
 
-                                            @canany(['manage settings', 'delete_changelogs'])
+                                            @canany(['manage settings', 'delete_work_progress'])
                                                 <form
                                                     method="POST"
-                                                    action="{{ route('administration.changelogs.destroy', $entry) }}"
-                                                    onsubmit="return confirm('Delete changelog {{ $entry->version }}?')"
+                                                    action="{{ route('administration.work-progress.destroy', $entry) }}"
+                                                    onsubmit="return confirm('Delete work progress {{ $entry->title }}?')"
                                                 >
                                                     @csrf
                                                     @method('DELETE')
@@ -155,7 +178,7 @@
                 </div>
 
                 <div class="mt-5">
-                    {{ $changelogs->links() }}
+                    {{ $items->links() }}
                 </div>
             @endif
         </x-private.panel>

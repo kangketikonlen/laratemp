@@ -57,6 +57,18 @@ final class PermissionCatalog
                 ],
             ],
             [
+                'key' => 'work_progress',
+                'title' => 'Work Progress',
+                'description' => 'Kontrol akses CRUD untuk pelacakan progress pekerjaan dan tindak lanjut tim.',
+                'bulk_label' => 'Full CRUD',
+                'permissions' => [
+                    ['name' => 'view_work_progress', 'label' => 'View', 'description' => 'Melihat daftar progress kerja.'],
+                    ['name' => 'create_work_progress', 'label' => 'Create', 'description' => 'Menambahkan progress kerja baru.'],
+                    ['name' => 'update_work_progress', 'label' => 'Update', 'description' => 'Memperbarui status dan catatan progress kerja.'],
+                    ['name' => 'delete_work_progress', 'label' => 'Delete', 'description' => 'Menghapus progress kerja dari sistem.'],
+                ],
+            ],
+            [
                 'key' => 'institutions',
                 'title' => 'Institution Settings',
                 'description' => 'Kontrol akses untuk pengaturan branding dan identitas institusi.',

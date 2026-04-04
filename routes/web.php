@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Administration\ChangelogController;
+use App\Http\Controllers\Administration\WorkProgressController;
 use App\Models\Administration\Changelog;
+use App\Models\Administration\WorkProgress;
 use App\Http\Controllers\Master\RoleController;
 use App\Http\Controllers\Master\UserController;
 use App\Http\Controllers\Settings\InstitutionController;
@@ -55,12 +57,20 @@ Route::middleware('auth')->group(function () {
             ->limit(4)
             ->get(['version', 'title', 'notes', 'released_at']);
 
+        $workProgressItems = WorkProgress::query()
+            ->whereIn('status', ['planned', 'in_progress', 'blocked'])
+            ->orderByRaw("case when status = 'blocked' then 0 when status = 'in_progress' then 1 else 2 end")
+            ->orderByDesc('updated_at')
+            ->limit(4)
+            ->get(['title', 'owner', 'status', 'priority', 'progress', 'target_date']);
+
         return view('auth.dashboard', [
             'content' => 'dashboard',
             'modules' => $modules,
             'institution' => $institution,
             'highlights' => $highlights,
             'releaseNotes' => $releaseNotes,
+            'workProgressItems' => $workProgressItems,
         ]);
     })->name('dashboard');
 
@@ -187,10 +197,23 @@ Route::middleware('auth')->group(function () {
         Route::delete('/administration/changelogs/{changelog}', [ChangelogController::class, 'destroy'])->name('administration.changelogs.destroy');
     });
 
-    Route::view('/administration/work-progress', 'auth.module', [
-        'title' => 'Work Progress',
-        'description' => 'Review work progress from the administration section.',
-    ])->name('administration.work-progress.index');
+    Route::middleware('can:view_work_progress')->group(function () {
+        Route::get('/administration/work-progress', [WorkProgressController::class, 'index'])->name('administration.work-progress.index');
+    });
+
+    Route::middleware('can:create_work_progress')->group(function () {
+        Route::get('/administration/work-progress/create', [WorkProgressController::class, 'create'])->name('administration.work-progress.create');
+        Route::post('/administration/work-progress', [WorkProgressController::class, 'store'])->name('administration.work-progress.store');
+    });
+
+    Route::middleware('can:update_work_progress')->group(function () {
+        Route::get('/administration/work-progress/{workProgress}/edit', [WorkProgressController::class, 'edit'])->name('administration.work-progress.edit');
+        Route::match(['put', 'patch'], '/administration/work-progress/{workProgress}', [WorkProgressController::class, 'update'])->name('administration.work-progress.update');
+    });
+
+    Route::middleware('can:delete_work_progress')->group(function () {
+        Route::delete('/administration/work-progress/{workProgress}', [WorkProgressController::class, 'destroy'])->name('administration.work-progress.destroy');
+    });
 
     Route::view('/report', 'auth.module', [
         'title' => 'Report',

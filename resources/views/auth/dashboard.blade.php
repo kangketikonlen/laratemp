@@ -96,6 +96,55 @@
                             @endif
                         </div>
                     </article>
+
+                    <article class="dashboard-surface">
+                        <div class="dashboard-section-head">
+                            <div>
+                                <p class="dashboard-section-kicker">Work Progress</p>
+                                <h2 class="dashboard-section-title">Agenda Berjalan</h2>
+                            </div>
+                            <span class="dashboard-release-badge">
+                                {{ $workProgressItems->count() }} active
+                            </span>
+                        </div>
+
+                        <div class="dashboard-progress-list">
+                            @if ($workProgressItems->isEmpty())
+                                <div class="dashboard-progress-card dashboard-progress-card--empty">
+                                    <p class="dashboard-progress-empty-title">Belum ada pekerjaan aktif.</p>
+                                    <p class="dashboard-progress-empty-copy">Tambahkan item di administration work progress untuk menampilkan agenda tim di dashboard.</p>
+                                </div>
+                            @else
+                                @foreach ($workProgressItems as $item)
+                                    <div class="dashboard-progress-card">
+                                        <div class="dashboard-progress-head">
+                                            <div class="min-w-0">
+                                                <p class="dashboard-progress-title">{{ $item->title }}</p>
+                                                <p class="dashboard-progress-meta">
+                                                    {{ $item->owner ?: 'Unassigned' }}
+                                                    @if ($item->target_date)
+                                                        · Target {{ $item->target_date->format('d M Y') }}
+                                                    @endif
+                                                </p>
+                                            </div>
+
+                                            <div class="dashboard-progress-tags">
+                                                <span class="private-role-badge private-role-badge--{{ $item->status }}">{{ \Illuminate\Support\Str::headline($item->status) }}</span>
+                                                <span class="private-role-badge private-role-badge--priority-{{ $item->priority }}">{{ ucfirst($item->priority) }}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="dashboard-progress-meter">
+                                            <div class="dashboard-progress-meter-track">
+                                                <span class="dashboard-progress-meter-fill" style="width: {{ max(0, min(100, $item->progress)) }}%"></span>
+                                            </div>
+                                            <span class="dashboard-progress-percent">{{ $item->progress }}%</span>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
+                    </article>
                 </div>
 
                 <article class="dashboard-surface">
