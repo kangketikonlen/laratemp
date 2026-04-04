@@ -23,32 +23,32 @@ it('seeds the default auth and settings data', function () {
         ->pluck('slug')
         ->all();
     $settingsNavbar = NavigationItem::query()
-        ->whereRelation('module', 'slug', 'settings.general')
+        ->whereRelation('module', 'slug', 'general')
         ->whereNull('parent_id')
         ->orderBy('sort_order')
         ->orderBy('name')
         ->pluck('slug')
         ->all();
     $masterSubnavbar = NavigationItem::query()
-        ->whereRelation('parent', 'slug', 'settings.general.master')
+        ->whereRelation('parent', 'slug', 'general.master')
         ->orderBy('sort_order')
         ->orderBy('name')
         ->pluck('slug')
         ->all();
     $settingsSubnavbar = NavigationItem::query()
-        ->whereRelation('parent', 'slug', 'settings.general.settings')
+        ->whereRelation('parent', 'slug', 'general.settings')
         ->orderBy('sort_order')
         ->orderBy('name')
         ->pluck('slug')
         ->all();
     $administrationSubnavbar = NavigationItem::query()
-        ->whereRelation('parent', 'slug', 'settings.general.administration')
+        ->whereRelation('parent', 'slug', 'general.administration')
         ->orderBy('sort_order')
         ->orderBy('name')
         ->pluck('slug')
         ->all();
     $reportSubnavbar = NavigationItem::query()
-        ->whereRelation('parent', 'slug', 'settings.general.report')
+        ->whereRelation('parent', 'slug', 'general.report')
         ->orderBy('sort_order')
         ->orderBy('name')
         ->pluck('slug')
@@ -59,33 +59,33 @@ it('seeds the default auth and settings data', function () {
         ->and($institution->address)->not->toBeEmpty()
         ->and($role->display_name)->toBe('Administrator')
         ->and($role->is_system)->toBeTrue()
-        ->and($modules)->toBe(['settings.general'])
+        ->and($modules)->toBe(['general'])
         ->and($settingsNavbar)->toBe([
-            'settings.general.master',
-            'settings.general.settings',
-            'settings.general.administration',
-            'settings.general.report',
+            'general.master',
+            'general.settings',
+            'general.administration',
+            'general.report',
         ])
         ->and($masterSubnavbar)->toBe([
-            'settings.general.master.users',
-            'settings.general.master.roles',
+            'general.master.users',
+            'general.master.roles',
         ])
         ->and($settingsSubnavbar)->toBe([
-            'settings.general.settings.institution',
-            'settings.general.settings.permissions',
+            'general.settings.institution',
+            'general.settings.permissions',
         ])
         ->and($administrationSubnavbar)->toBe([
-            'settings.general.administration.changelogs',
-            'settings.general.administration.work-progress',
+            'general.administration.changelogs',
+            'general.administration.work-progress',
         ])
         ->and($reportSubnavbar)->toBe([
-            'settings.general.report.activity-log',
-            'settings.general.report.error-report',
+            'general.report.activity-log',
+            'general.report.error-report',
         ]);
 
     expect($admin->hasRole('admin'))->toBeTrue();
     expect($role->modules()->orderBy('sort_order')->pluck('slug')->all())
-        ->toBe(['settings.general']);
+        ->toBe(['general']);
 
     expect(Permission::query()->pluck('name')->sort()->values()->all())
         ->toBe(['manage settings']);

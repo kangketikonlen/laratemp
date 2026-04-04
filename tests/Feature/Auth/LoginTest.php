@@ -77,7 +77,7 @@ it('shows the assigned module list on the dashboard', function () {
         ->assertOk()
         ->assertSeeText('Available Modules')
         ->assertSeeText('General Settings')
-        ->assertSeeText('settings.general')
+        ->assertSeeText('general')
         ->assertSeeText('Default Institution')
         ->assertSeeText('Catatan Pembaruan')
         ->assertDontSeeText('Back to dashboard');
@@ -89,7 +89,7 @@ it('allows the admin to open the general settings module page', function () {
     $user = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
 
     $this->actingAs($user)
-        ->get(route('settings.general'))
+        ->get(route('general'))
         ->assertOk()
         ->assertSeeText('Selamat datang di dashboard General Settings')
         ->assertSeeText('General Settings')
@@ -287,7 +287,7 @@ it('allows the admin to create a role from the master roles page', function () {
     /** @var TestCase $this */
     $this->seed(DatabaseSeeder::class);
     $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
-    $module = \App\Models\Settings\Module::query()->where('slug', 'settings.general')->firstOrFail();
+    $module = \App\Models\Settings\Module::query()->where('slug', 'general')->firstOrFail();
 
     $this->actingAs($admin)
         ->post(route('master.roles.store'), [

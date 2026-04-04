@@ -34,19 +34,19 @@ class RoleAndPermissionSeeder extends Seeder
         Module::query()->whereIn('slug', ['master', 'settings', 'administration', 'report'])->delete();
 
         $generalSettingsModule = Module::query()->updateOrCreate(
-            ['slug' => 'settings.general'],
+            ['slug' => 'general'],
             [
                 'name' => 'General Settings',
                 'description' => 'Manage application-wide general settings and navigation access.',
                 'icon' => 'settings',
-                'route_name' => 'settings.general',
+                'route_name' => 'general',
                 'sort_order' => 10,
                 'is_active' => true,
             ],
         );
 
         $masterNavigation = NavigationItem::query()->updateOrCreate(
-            ['slug' => 'settings.general.master'],
+            ['slug' => 'general.master'],
             [
                 'module_id' => $generalSettingsModule->id,
                 'parent_id' => null,
@@ -59,7 +59,7 @@ class RoleAndPermissionSeeder extends Seeder
         );
 
         NavigationItem::query()->updateOrCreate(
-            ['slug' => 'settings.general.master.users'],
+            ['slug' => 'general.master.users'],
             [
                 'module_id' => $generalSettingsModule->id,
                 'parent_id' => $masterNavigation->id,
@@ -72,7 +72,7 @@ class RoleAndPermissionSeeder extends Seeder
         );
 
         NavigationItem::query()->updateOrCreate(
-            ['slug' => 'settings.general.master.roles'],
+            ['slug' => 'general.master.roles'],
             [
                 'module_id' => $generalSettingsModule->id,
                 'parent_id' => $masterNavigation->id,
@@ -85,7 +85,7 @@ class RoleAndPermissionSeeder extends Seeder
         );
 
         $settingsNavigation = NavigationItem::query()->updateOrCreate(
-            ['slug' => 'settings.general.settings'],
+            ['slug' => 'general.settings'],
             [
                 'module_id' => $generalSettingsModule->id,
                 'parent_id' => null,
@@ -98,7 +98,7 @@ class RoleAndPermissionSeeder extends Seeder
         );
 
         NavigationItem::query()->updateOrCreate(
-            ['slug' => 'settings.general.settings.institution'],
+            ['slug' => 'general.settings.institution'],
             [
                 'module_id' => $generalSettingsModule->id,
                 'parent_id' => $settingsNavigation->id,
@@ -111,7 +111,7 @@ class RoleAndPermissionSeeder extends Seeder
         );
 
         NavigationItem::query()->updateOrCreate(
-            ['slug' => 'settings.general.settings.permissions'],
+            ['slug' => 'general.settings.permissions'],
             [
                 'module_id' => $generalSettingsModule->id,
                 'parent_id' => $settingsNavigation->id,
@@ -124,7 +124,7 @@ class RoleAndPermissionSeeder extends Seeder
         );
 
         $administrationNavigation = NavigationItem::query()->updateOrCreate(
-            ['slug' => 'settings.general.administration'],
+            ['slug' => 'general.administration'],
             [
                 'module_id' => $generalSettingsModule->id,
                 'parent_id' => null,
@@ -137,7 +137,7 @@ class RoleAndPermissionSeeder extends Seeder
         );
 
         NavigationItem::query()->updateOrCreate(
-            ['slug' => 'settings.general.administration.changelogs'],
+            ['slug' => 'general.administration.changelogs'],
             [
                 'module_id' => $generalSettingsModule->id,
                 'parent_id' => $administrationNavigation->id,
@@ -150,7 +150,7 @@ class RoleAndPermissionSeeder extends Seeder
         );
 
         NavigationItem::query()->updateOrCreate(
-            ['slug' => 'settings.general.administration.work-progress'],
+            ['slug' => 'general.administration.work-progress'],
             [
                 'module_id' => $generalSettingsModule->id,
                 'parent_id' => $administrationNavigation->id,
@@ -163,7 +163,7 @@ class RoleAndPermissionSeeder extends Seeder
         );
 
         $reportNavigation = NavigationItem::query()->updateOrCreate(
-            ['slug' => 'settings.general.report'],
+            ['slug' => 'general.report'],
             [
                 'module_id' => $generalSettingsModule->id,
                 'parent_id' => null,
@@ -176,7 +176,7 @@ class RoleAndPermissionSeeder extends Seeder
         );
 
         NavigationItem::query()->updateOrCreate(
-            ['slug' => 'settings.general.report.activity-log'],
+            ['slug' => 'general.report.activity-log'],
             [
                 'module_id' => $generalSettingsModule->id,
                 'parent_id' => $reportNavigation->id,
@@ -189,7 +189,7 @@ class RoleAndPermissionSeeder extends Seeder
         );
 
         NavigationItem::query()->updateOrCreate(
-            ['slug' => 'settings.general.report.error-report'],
+            ['slug' => 'general.report.error-report'],
             [
                 'module_id' => $generalSettingsModule->id,
                 'parent_id' => $reportNavigation->id,

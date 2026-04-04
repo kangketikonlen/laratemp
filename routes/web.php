@@ -104,7 +104,7 @@ Route::middleware('auth')->group(function () {
 
             $module = $user->roles
                 ->flatMap(fn ($role) => $role->modules)
-                ->where('slug', 'settings.general')
+                ->where('slug', 'general')
                 ->first();
 
             abort_unless($module, 403);
@@ -118,7 +118,7 @@ Route::middleware('auth')->group(function () {
                     ->orderBy('name')
                     ->get(),
             ]);
-        })->name('settings.general');
+        })->name('general');
     });
 
     Route::view('/administration', 'auth.module', [

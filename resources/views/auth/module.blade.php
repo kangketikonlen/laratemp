@@ -2,7 +2,7 @@
     <div class="private-page">
         <x-private.page-header :title="$title" subtitle="Section Dashboard">
             <x-slot:actions>
-                <a href="{{ route('settings.general') }}" class="private-action-link">
+                <a href="{{ route('general') }}" class="private-action-link">
                     <span>Back to module</span>
                 </a>
             </x-slot:actions>
