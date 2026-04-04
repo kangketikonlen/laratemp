@@ -16,6 +16,17 @@ class UserController extends Controller
     public function index(Request $request): View
     {
         $search = trim((string) $request->string('search'));
+        $sort = (string) $request->string('sort', 'name');
+        $direction = strtolower((string) $request->string('direction', 'asc'));
+        $allowedSorts = ['name', 'username', 'email', 'created_at'];
+
+        if (! in_array($sort, $allowedSorts, true)) {
+            $sort = 'name';
+        }
+
+        if (! in_array($direction, ['asc', 'desc'], true)) {
+            $direction = 'asc';
+        }
 
         $users = User::query()
             ->with('roles')
@@ -27,8 +38,9 @@ class UserController extends Controller
                         ->orWhere('email', 'like', "%{$search}%");
                 });
             })
-            ->orderBy('name')
-            ->orderBy('username')
+            ->orderBy($sort, $direction)
+            ->when($sort !== 'name', fn ($query) => $query->orderBy('name'))
+            ->when($sort !== 'username', fn ($query) => $query->orderBy('username'))
             ->paginate(10)
             ->withQueryString();
 
@@ -36,6 +48,8 @@ class UserController extends Controller
             'title' => 'User',
             'description' => 'Manage user records from the master section.',
             'search' => $search,
+            'sort' => $sort,
+            'direction' => $direction,
             'users' => $users,
         ]);
     }

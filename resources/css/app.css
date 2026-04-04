@@ -181,6 +181,10 @@
         @apply px-4 py-3 text-left font-semibold;
     }
 
+    .private-table-sort {
+        @apply inline-flex items-center gap-2 text-inherit transition hover:text-slate-700;
+    }
+
     .private-table td {
         @apply px-4 py-4 align-top;
     }

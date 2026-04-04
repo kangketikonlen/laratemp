@@ -16,6 +16,17 @@ class RoleController extends Controller
     public function index(Request $request): View
     {
         $search = trim((string) $request->string('search'));
+        $sort = (string) $request->string('sort', 'display_name');
+        $direction = strtolower((string) $request->string('direction', 'asc'));
+        $allowedSorts = ['display_name', 'name', 'users_count', 'is_system'];
+
+        if (! in_array($sort, $allowedSorts, true)) {
+            $sort = 'display_name';
+        }
+
+        if (! in_array($direction, ['asc', 'desc'], true)) {
+            $direction = 'asc';
+        }
 
         $roles = Role::query()
             ->with(['modules'])
@@ -28,9 +39,10 @@ class RoleController extends Controller
                         ->orWhere('description', 'like', "%{$search}%");
                 });
             })
-            ->orderByDesc('is_system')
-            ->orderBy('display_name')
-            ->orderBy('name')
+            ->orderBy($sort, $direction)
+            ->when($sort !== 'is_system', fn ($query) => $query->orderByDesc('is_system'))
+            ->when($sort !== 'display_name', fn ($query) => $query->orderByRaw('COALESCE(display_name, name) asc'))
+            ->when($sort !== 'name', fn ($query) => $query->orderBy('name'))
             ->paginate(10)
             ->withQueryString();
 
@@ -38,6 +50,8 @@ class RoleController extends Controller
             'title' => 'Role',
             'description' => 'Manage role records from the master section.',
             'search' => $search,
+            'sort' => $sort,
+            'direction' => $direction,
             'roles' => $roles,
         ]);
     }

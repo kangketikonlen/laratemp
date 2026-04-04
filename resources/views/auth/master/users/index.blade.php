@@ -1,4 +1,24 @@
 <x-layouts.private-module :title="$title" :description="$description">
+    @php
+        $sortUrl = function (string $column) use ($sort, $direction) {
+            $nextDirection = $sort === $column && $direction === 'asc' ? 'desc' : 'asc';
+
+            return request()->fullUrlWithQuery([
+                'sort' => $column,
+                'direction' => $nextDirection,
+                'page' => 1,
+            ]);
+        };
+
+        $sortIcon = function (string $column) use ($sort, $direction) {
+            if ($sort !== $column) {
+                return '<>';
+            }
+
+            return $direction === 'asc' ? '^' : 'v';
+        };
+    @endphp
+
     <div class="private-page">
         <x-private.page-header :title="$title" subtitle="Master Data Management">
             <x-slot:actions>
@@ -34,6 +54,9 @@
                         placeholder="Cari nama, username, atau email..."
                         autocomplete="off"
                     />
+
+                    <input type="hidden" name="sort" value="{{ $sort }}">
+                    <input type="hidden" name="direction" value="{{ $direction }}">
                 </div>
 
                 <div class="private-inline-actions">
@@ -54,11 +77,31 @@
                     <table class="private-table">
                         <thead>
                             <tr>
-                                <th>User</th>
-                                <th>Username</th>
-                                <th>Email</th>
+                                <th>
+                                    <a href="{{ $sortUrl('name') }}" class="private-table-sort">
+                                        <span>User</span>
+                                        <span aria-hidden="true">{{ $sortIcon('name') }}</span>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="{{ $sortUrl('username') }}" class="private-table-sort">
+                                        <span>Username</span>
+                                        <span aria-hidden="true">{{ $sortIcon('username') }}</span>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="{{ $sortUrl('email') }}" class="private-table-sort">
+                                        <span>Email</span>
+                                        <span aria-hidden="true">{{ $sortIcon('email') }}</span>
+                                    </a>
+                                </th>
                                 <th>Role</th>
-                                <th>Dibuat</th>
+                                <th>
+                                    <a href="{{ $sortUrl('created_at') }}" class="private-table-sort">
+                                        <span>Dibuat</span>
+                                        <span aria-hidden="true">{{ $sortIcon('created_at') }}</span>
+                                    </a>
+                                </th>
                                 <th class="text-right">Action</th>
                             </tr>
                         </thead>
