@@ -2,9 +2,9 @@
 
 namespace App\Models\Administration;
 
+use App\Models\Concerns\HasPreviewText;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 #[Fillable([
     'title',
@@ -19,17 +19,13 @@ use Illuminate\Support\Str;
 ])]
 class WorkProgress extends Model
 {
+    use HasPreviewText;
+
     protected $table = 'work_progress';
 
-    public function previewText(int $limit = 140): ?string
+    protected function previewSourceText(): string
     {
-        $source = trim(strip_tags((string) $this->notes));
-
-        if ($source === '') {
-            return null;
-        }
-
-        return Str::limit($source, $limit);
+        return (string) $this->notes;
     }
 
     protected function casts(): array

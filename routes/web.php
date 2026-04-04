@@ -221,10 +221,10 @@ Route::middleware('auth')->group(function () {
         'description' => 'Reporting modules and summaries will be available here.',
     ])->name('report.index');
 
-    Route::middleware('can:view_activity_logs')->group(function () {
-        Route::get('/report/activity-log', [ActivityLogController::class, 'index'])->name('report.activity-log.index');
-        Route::get('/report/activity-log/{activityLog}', [ActivityLogController::class, 'show'])->name('report.activity-log.show');
-    });
+    Route::middleware('can:view_activity_logs')
+        ->resource('report/activity-log', ActivityLogController::class)
+        ->names('report.activity-log')
+        ->only(['index', 'show']);
 
     Route::view('/report/error-report', 'auth.module', [
         'title' => 'Error Report',

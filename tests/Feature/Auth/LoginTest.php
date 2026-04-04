@@ -638,7 +638,7 @@ it('shows automatically logged activity entries on the report page', function ()
         ->assertRedirect(route('master.users.index'));
 
     $this->actingAs($admin)
-        ->get(route('report.activity-log.index'))
+        ->get(route('report.activity-log.index', ['search' => 'activity_logger']))
         ->assertOk()
         ->assertSeeText('Created user account')
         ->assertSeeText('activity_logger')

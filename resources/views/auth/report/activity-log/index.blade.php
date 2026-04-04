@@ -107,6 +107,9 @@
                                 <tr>
                                     <td>
                                         <div class="private-table-primary">{{ $entry->activity }}</div>
+                                        @if (filled($entry->previewText()))
+                                            <div class="mt-1 private-table-muted">{{ $entry->previewText() }}</div>
+                                        @endif
                                     </td>
                                     <td>
                                         <span class="private-table-muted">{{ $entry->actor ?: 'System' }}</span>

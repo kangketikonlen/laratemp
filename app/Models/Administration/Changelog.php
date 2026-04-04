@@ -2,10 +2,10 @@
 
 namespace App\Models\Administration;
 
+use App\Models\Concerns\HasPreviewText;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 
 #[Fillable([
     'version',
@@ -18,6 +18,8 @@ use Illuminate\Support\Str;
 ])]
 class Changelog extends Model
 {
+    use HasPreviewText;
+
     public static function defaultVersion(null|string|\DateTimeInterface $releaseDate = null): string
     {
         $date = $releaseDate instanceof \DateTimeInterface
@@ -27,17 +29,11 @@ class Changelog extends Model
         return 'v'.$date->format('Y.m.d');
     }
 
-    public function previewText(int $limit = 140): ?string
+    protected function previewSourceText(): string
     {
-        $source = filled($this->summary)
+        return filled($this->summary)
             ? (string) $this->summary
-            : trim(strip_tags((string) $this->notes));
-
-        if ($source === '') {
-            return null;
-        }
-
-        return Str::limit($source, $limit);
+            : (string) $this->notes;
     }
 
     protected function casts(): array
