@@ -357,6 +357,58 @@
         @apply flex min-h-44 items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-5 text-center text-sm leading-6 text-slate-500;
     }
 
+    .permission-matrix {
+        @apply space-y-4;
+    }
+
+    .permission-matrix-intro {
+        @apply mb-4 rounded-xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-700;
+    }
+
+    .permission-matrix-section {
+        @apply rounded-2xl border border-slate-200 bg-slate-50 p-4;
+    }
+
+    .permission-matrix-head {
+        @apply mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between;
+    }
+
+    .permission-matrix-title {
+        @apply text-base font-semibold text-slate-900;
+    }
+
+    .permission-matrix-copy {
+        @apply mt-1 text-sm leading-6 text-slate-500;
+    }
+
+    .permission-matrix-grid {
+        @apply grid gap-3 md:grid-cols-2 xl:grid-cols-4;
+    }
+
+    .permission-matrix-toggle {
+        @apply inline-flex items-center justify-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-sky-700 transition hover:bg-sky-100;
+    }
+
+    .permission-matrix-card {
+        @apply flex gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700;
+    }
+
+    .permission-matrix-card input {
+        @apply mt-1 h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500;
+    }
+
+    .permission-matrix-card-title {
+        @apply block font-medium text-slate-900;
+    }
+
+    .permission-matrix-card-copy {
+        @apply mt-1 block text-sm leading-6 text-slate-500;
+    }
+
+    .permission-library-code {
+        @apply text-xs font-semibold uppercase tracking-[0.14em] text-slate-400;
+    }
+
     .rich-editor {
         @apply overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm;
     }

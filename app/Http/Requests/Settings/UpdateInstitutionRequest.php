@@ -8,7 +8,7 @@ class UpdateInstitutionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('manage settings') ?? false;
+        return $this->user()?->canAny(['manage settings', 'update_institutions']) ?? false;
     }
 
     /**

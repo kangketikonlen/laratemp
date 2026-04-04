@@ -124,6 +124,13 @@
                     </div>
                 </x-form.field>
 
+                <x-form.permission-matrix
+                    :catalog="$permissionCatalog"
+                    input-name="permissions"
+                    :selected="old('permissions', $selectedPermissions)"
+                    :error="$errors->first('permissions') ?: $errors->first('permissions.*')"
+                />
+
                 <div class="private-form-actions private-field-span-2">
                     <a href="{{ route('master.users.index') }}" class="private-action-link">Cancel</a>
 

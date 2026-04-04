@@ -18,6 +18,8 @@ class UpdateRoleRequest extends RoleRequest
             'description' => ['nullable', 'string', 'max:1000'],
             'modules' => ['nullable', 'array'],
             'modules.*' => ['integer', 'distinct', 'exists:modules,id'],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['string', Rule::exists('permissions', 'name')->where('guard_name', 'web')],
         ];
     }
 }

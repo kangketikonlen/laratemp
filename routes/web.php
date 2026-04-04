@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Master\RoleController;
 use App\Http\Controllers\Master\UserController;
 use App\Http\Controllers\Settings\InstitutionController;
+use App\Http\Controllers\Settings\PermissionController;
 use App\Models\Settings\Institution;
 use App\Models\Settings\Module;
 use App\Models\Settings\NavigationItem;
@@ -71,29 +72,70 @@ Route::middleware('auth')->group(function () {
         'description' => 'Choose a settings module from the navigation below.',
     ])->name('settings.index');
 
-    Route::view('/settings/permissions', 'auth.module', [
-        'title' => 'Permission',
-        'description' => 'Manage permission records from the settings section.',
-    ])->name('settings.permissions.index');
+    Route::middleware('can:view_institutions')->group(function () {
+        Route::get('/settings/institutions', [InstitutionController::class, 'index'])->name('settings.institutions.index');
+    });
+
+    Route::middleware('can:update_institutions')->group(function () {
+        Route::put('/settings/institutions', [InstitutionController::class, 'update'])->name('settings.institutions.update');
+    });
+
+    Route::middleware('can:view_permissions')->group(function () {
+        Route::get('/settings/permissions', [PermissionController::class, 'index'])->name('settings.permissions.index');
+    });
 
     Route::middleware('can:manage settings')->group(function () {
-        Route::get('/settings/institutions', [InstitutionController::class, 'index'])->name('settings.institutions.index');
-        Route::put('/settings/institutions', [InstitutionController::class, 'update'])->name('settings.institutions.update');
+        Route::get('/settings/permissions/create', [PermissionController::class, 'create'])->name('settings.permissions.create');
+        Route::post('/settings/permissions', [PermissionController::class, 'store'])->name('settings.permissions.store');
+        Route::get('/settings/permissions/{permission}/edit', [PermissionController::class, 'edit'])->name('settings.permissions.edit');
+        Route::match(['put', 'patch'], '/settings/permissions/{permission}', [PermissionController::class, 'update'])->name('settings.permissions.update');
+        Route::delete('/settings/permissions/{permission}', [PermissionController::class, 'destroy'])->name('settings.permissions.destroy');
+    });
 
+    Route::middleware('can:update_permissions')->group(function () {
+        Route::get('/settings/permissions/roles/{role}/edit', [PermissionController::class, 'editRole'])->name('settings.permissions.roles.edit');
+        Route::match(['put', 'patch'], '/settings/permissions/roles/{role}', [PermissionController::class, 'updateRole'])->name('settings.permissions.roles.update');
+        Route::get('/settings/permissions/users/{user}/edit', [PermissionController::class, 'editUser'])->name('settings.permissions.users.edit');
+        Route::match(['put', 'patch'], '/settings/permissions/users/{user}', [PermissionController::class, 'updateUser'])->name('settings.permissions.users.update');
+    });
+
+    Route::middleware('can:view_users')->group(function () {
         Route::get('/master/users', [UserController::class, 'index'])->name('master.users.index');
+    });
+
+    Route::middleware('can:create_users')->group(function () {
         Route::get('/master/users/create', [UserController::class, 'create'])->name('master.users.create');
         Route::post('/master/users', [UserController::class, 'store'])->name('master.users.store');
+    });
+
+    Route::middleware('can:update_users')->group(function () {
         Route::get('/master/users/{user}/edit', [UserController::class, 'edit'])->name('master.users.edit');
         Route::match(['put', 'patch'], '/master/users/{user}', [UserController::class, 'update'])->name('master.users.update');
-        Route::delete('/master/users/{user}', [UserController::class, 'destroy'])->name('master.users.destroy');
+    });
 
+    Route::middleware('can:delete_users')->group(function () {
+        Route::delete('/master/users/{user}', [UserController::class, 'destroy'])->name('master.users.destroy');
+    });
+
+    Route::middleware('can:view_roles')->group(function () {
         Route::get('/master/roles', [RoleController::class, 'index'])->name('master.roles.index');
+    });
+
+    Route::middleware('can:create_roles')->group(function () {
         Route::get('/master/roles/create', [RoleController::class, 'create'])->name('master.roles.create');
         Route::post('/master/roles', [RoleController::class, 'store'])->name('master.roles.store');
+    });
+
+    Route::middleware('can:update_roles')->group(function () {
         Route::get('/master/roles/{role}/edit', [RoleController::class, 'edit'])->name('master.roles.edit');
         Route::match(['put', 'patch'], '/master/roles/{role}', [RoleController::class, 'update'])->name('master.roles.update');
-        Route::delete('/master/roles/{role}', [RoleController::class, 'destroy'])->name('master.roles.destroy');
+    });
 
+    Route::middleware('can:delete_roles')->group(function () {
+        Route::delete('/master/roles/{role}', [RoleController::class, 'destroy'])->name('master.roles.destroy');
+    });
+
+    Route::middleware('can:manage settings')->group(function () {
         Route::get('/general', function () {
             $user = request()->user();
 

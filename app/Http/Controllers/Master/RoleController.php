@@ -7,6 +7,7 @@ use App\Http\Requests\Master\StoreRoleRequest;
 use App\Http\Requests\Master\UpdateRoleRequest;
 use App\Models\Settings\Module;
 use App\Models\Settings\Role;
+use App\Support\Permissions\PermissionCatalog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -64,6 +65,8 @@ class RoleController extends Controller
             'role' => new Role(['guard_name' => 'web']),
             'modules' => Module::query()->orderBy('sort_order')->orderBy('name')->get(),
             'selectedModules' => [],
+            'permissionCatalog' => PermissionCatalog::sections(),
+            'selectedPermissions' => [],
             'isEdit' => false,
         ]);
     }
@@ -72,6 +75,7 @@ class RoleController extends Controller
     {
         $role = Role::query()->create($request->validatedRoleData());
         $role->modules()->sync($request->validatedModuleIds());
+        $role->syncPermissions($request->validatedPermissionNames());
 
         return redirect()
             ->route('master.roles.index')
@@ -88,6 +92,8 @@ class RoleController extends Controller
             'role' => $role,
             'modules' => Module::query()->orderBy('sort_order')->orderBy('name')->get(),
             'selectedModules' => $role->modules->pluck('id')->all(),
+            'permissionCatalog' => PermissionCatalog::sections(),
+            'selectedPermissions' => $role->permissions->pluck('name')->all(),
             'isEdit' => true,
         ]);
     }
@@ -104,6 +110,7 @@ class RoleController extends Controller
 
         $role->update($request->validatedRoleData());
         $role->modules()->sync($request->validatedModuleIds());
+        $role->syncPermissions($request->validatedPermissionNames());
 
         return redirect()
             ->route('master.roles.index')

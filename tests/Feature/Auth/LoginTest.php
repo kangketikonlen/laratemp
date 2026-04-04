@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 it('redirects the root route to login', function () {
@@ -162,14 +163,14 @@ it('shows the settings sub navigation items when opening a settings child page',
     $user = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
 
     $this->actingAs($user)
-        ->get(route('settings.institutions.index'))
+        ->get(route('settings.permissions.index'))
         ->assertOk()
         ->assertSeeText('Settings')
         ->assertSeeText('Institution')
         ->assertSeeText('Permission')
-        ->assertSeeText('Institution Settings')
-        ->assertSeeText('Branding Institution')
-        ->assertSeeText('Application Logo');
+        ->assertSeeText('Role Access')
+        ->assertSeeText('Start With Roles, Then Manage Their Access')
+        ->assertSeeText('Administrator');
 });
 
 it('allows the admin to update institution branding from the settings page', function () {
@@ -211,6 +212,208 @@ it('allows the admin to update institution branding from the settings page', fun
         ->assertSeeText('PT Example Baru')
         ->assertSee(Storage::disk('public')->url($institution->logo), false)
         ->assertSee(Storage::disk('public')->url($institution->background), false);
+});
+
+it('allows the admin to assign CRUD permissions to a role from the master roles page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $module = \App\Models\Settings\Module::query()->where('slug', 'general')->firstOrFail();
+
+    $this->actingAs($admin)
+        ->post(route('master.roles.store'), [
+            'name' => 'operator_support',
+            'display_name' => 'Operator Support',
+            'description' => 'Support role for day-to-day operations.',
+            'modules' => [$module->id],
+            'permissions' => ['view_users', 'create_users'],
+        ])
+        ->assertRedirect(route('master.roles.index'));
+
+    $createdRole = Role::query()->where('name', 'operator_support')->firstOrFail();
+
+    expect($createdRole->hasPermissionTo('view_users'))->toBeTrue()
+        ->and($createdRole->hasPermissionTo('create_users'))->toBeTrue();
+});
+
+it('allows the admin to assign direct CRUD permissions to a user from the master users page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($admin)
+        ->post(route('master.users.store'), [
+            'name' => 'Jane Operator',
+            'username' => 'jane_operator',
+            'email' => 'jane@example.com',
+            'password' => 'secret-pass-1',
+            'password_confirmation' => 'secret-pass-1',
+            'roles' => [],
+            'permissions' => ['view_permissions', 'create_permissions'],
+        ])
+        ->assertRedirect(route('master.users.index'));
+
+    $createdUser = User::query()->where('username', 'jane_operator')->firstOrFail();
+
+    expect($createdUser->hasDirectPermission('view_permissions'))->toBeTrue()
+        ->and($createdUser->hasDirectPermission('create_permissions'))->toBeTrue();
+});
+
+it('allows the admin to create a permission from the settings page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($admin)
+        ->post(route('settings.permissions.store'), [
+            'name' => 'manage_reports',
+            'guard_name' => 'web',
+        ])
+        ->assertRedirect(route('settings.permissions.index'));
+
+    $createdPermission = Permission::query()->where('name', 'manage_reports')->firstOrFail();
+
+    expect($createdPermission->guard_name)->toBe('web');
+});
+
+it('allows the admin to update a custom permission from the settings page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $permission = Permission::query()->create([
+        'name' => 'manage_reports',
+        'guard_name' => 'web',
+    ]);
+
+    $this->actingAs($admin)
+        ->put(route('settings.permissions.update', $permission), [
+            'name' => 'manage_audit_reports',
+            'guard_name' => 'web',
+        ])
+        ->assertRedirect(route('settings.permissions.index'));
+
+    $permission->refresh();
+
+    expect($permission->name)->toBe('manage_audit_reports');
+});
+
+it('prevents the admin from updating a system permission', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $permission = Permission::query()->where('name', 'manage settings')->firstOrFail();
+
+    $this->actingAs($admin)
+        ->put(route('settings.permissions.update', $permission), [
+            'name' => 'manage_platform_settings',
+            'guard_name' => 'web',
+        ])
+        ->assertRedirect(route('settings.permissions.index'))
+        ->assertSessionHasErrors('permission');
+
+    $permission->refresh();
+
+    expect($permission->name)->toBe('manage settings');
+});
+
+it('allows the admin to delete a custom permission from the settings page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $permission = Permission::query()->create([
+        'name' => 'manage_reports',
+        'guard_name' => 'web',
+    ]);
+
+    $this->actingAs($admin)
+        ->delete(route('settings.permissions.destroy', $permission))
+        ->assertRedirect(route('settings.permissions.index'));
+
+    $this->assertDatabaseMissing('permissions', [
+        'id' => $permission->id,
+    ]);
+});
+
+it('prevents the admin from deleting a system permission', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $permission = Permission::query()->where('name', 'manage settings')->firstOrFail();
+
+    $this->actingAs($admin)
+        ->delete(route('settings.permissions.destroy', $permission))
+        ->assertRedirect(route('settings.permissions.index'))
+        ->assertSessionHasErrors('permission');
+
+    $this->assertDatabaseHas('permissions', [
+        'id' => $permission->id,
+    ]);
+});
+
+it('allows a user with only view permission access to open permission index but not create permission', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $user = User::query()->create([
+        'name' => 'Viewer User',
+        'username' => 'viewer_user',
+        'email' => 'viewer@example.com',
+        'password' => 'secret-pass-1',
+    ]);
+
+    $user->givePermissionTo('view_permissions');
+
+    $this->actingAs($user)
+        ->get(route('settings.permissions.index'))
+        ->assertOk()
+        ->assertSeeText('Role Access Directory')
+        ->assertSeeText('Direct User Access Directory')
+        ->assertDontSeeText('Add Custom Access');
+
+    $this->actingAs($user)
+        ->get(route('settings.permissions.create'))
+        ->assertForbidden();
+});
+
+it('allows a user with update permission access to open the role access checklist page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $user = User::query()->create([
+        'name' => 'Access Manager',
+        'username' => 'access_manager',
+        'email' => 'access-manager@example.com',
+        'password' => 'secret-pass-1',
+    ]);
+    $role = Role::query()->where('name', 'admin')->firstOrFail();
+
+    $user->givePermissionTo(['view_permissions', 'update_permissions']);
+
+    $this->actingAs($user)
+        ->get(route('settings.permissions.roles.edit', $role))
+        ->assertOk()
+        ->assertSeeText('Manage Role Access')
+        ->assertSeeText('Administrator')
+        ->assertSeeText('Access Checklist');
+});
+
+it('allows a user with update permission access to open the user direct access checklist page', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $manager = User::query()->create([
+        'name' => 'Access Manager',
+        'username' => 'access_manager_two',
+        'email' => 'access-manager-two@example.com',
+        'password' => 'secret-pass-1',
+    ]);
+    $managedUser = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $manager->givePermissionTo(['view_permissions', 'update_permissions']);
+
+    $this->actingAs($manager)
+        ->get(route('settings.permissions.users.edit', $managedUser))
+        ->assertOk()
+        ->assertSeeText('Manage User Access')
+        ->assertSeeText('Administrator')
+        ->assertSeeText('Direct Access Checklist');
 });
 
 it('shows the administration sub navigation items when opening an administration child page', function () {

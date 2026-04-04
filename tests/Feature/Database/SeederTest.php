@@ -4,6 +4,7 @@ use App\Models\Settings\Module;
 use App\Models\Settings\NavigationItem;
 use App\Models\Settings\Role;
 use App\Models\Settings\Institution;
+use App\Support\Permissions\PermissionCatalog;
 use App\Models\User;
 use App\Settings\GeneralSettings;
 use Database\Seeders\DatabaseSeeder;
@@ -88,7 +89,10 @@ it('seeds the default auth and settings data', function () {
         ->toBe(['general']);
 
     expect(Permission::query()->pluck('name')->sort()->values()->all())
-        ->toBe(['manage settings']);
+        ->toBe(collect([
+            'manage settings',
+            ...PermissionCatalog::names(),
+        ])->unique()->sort()->values()->all());
 });
 
 it('seeds the general settings payload', function () {

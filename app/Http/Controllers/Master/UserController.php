@@ -7,6 +7,7 @@ use App\Http\Requests\Master\StoreUserRequest;
 use App\Http\Requests\Master\UpdateUserRequest;
 use App\Models\Settings\Role;
 use App\Models\User;
+use App\Support\Permissions\PermissionCatalog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -62,6 +63,8 @@ class UserController extends Controller
             'user' => new User,
             'roles' => Role::query()->orderBy('display_name')->orderBy('name')->get(),
             'selectedRoles' => [],
+            'permissionCatalog' => PermissionCatalog::sections(),
+            'selectedPermissions' => [],
             'isEdit' => false,
         ]);
     }
@@ -70,6 +73,7 @@ class UserController extends Controller
     {
         $user = User::query()->create($request->validatedUserData());
         $user->syncRoles($request->validatedRoleNames());
+        $user->syncPermissions($request->validatedPermissionNames());
 
         return redirect()
             ->route('master.users.index')
@@ -78,7 +82,7 @@ class UserController extends Controller
 
     public function edit(User $user): View
     {
-        $user->load('roles');
+        $user->load('roles', 'permissions');
 
         return view('auth.master.users.form', [
             'title' => 'User',
@@ -86,6 +90,8 @@ class UserController extends Controller
             'user' => $user,
             'roles' => Role::query()->orderBy('display_name')->orderBy('name')->get(),
             'selectedRoles' => $user->roles->pluck('name')->all(),
+            'permissionCatalog' => PermissionCatalog::sections(),
+            'selectedPermissions' => $user->permissions->pluck('name')->all(),
             'isEdit' => true,
         ]);
     }
@@ -94,6 +100,7 @@ class UserController extends Controller
     {
         $user->update($request->validatedUserData());
         $user->syncRoles($request->validatedRoleNames());
+        $user->syncPermissions($request->validatedPermissionNames());
 
         return redirect()
             ->route('master.users.index')
