@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\Auth\LoginUser;
+use App\Models\Administration\Changelog;
 use App\Models\Settings\Institution;
 use App\Livewire\Auth\Login;
 use App\Models\Settings\Role;
@@ -84,6 +85,8 @@ it('shows the assigned module list on the dashboard', function () {
         ->assertSeeText('general')
         ->assertSeeText('Default Institution')
         ->assertSeeText('Catatan Pembaruan')
+        ->assertSeeText('v1.2.0')
+        ->assertSeeText('Role and User Access Manager')
         ->assertDontSeeText('Back to dashboard');
 });
 
@@ -427,7 +430,73 @@ it('shows the administration sub navigation items when opening an administration
         ->assertSeeText('Administration')
         ->assertSeeText('Changelogs')
         ->assertSeeText('Work Progress')
-        ->assertSeeText('Section Dashboard');
+        ->assertSeeText('Changelog Timeline')
+        ->assertSeeText('Release Notes');
+});
+
+it('allows the admin to create a changelog from the administration section', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+
+    $this->actingAs($admin)
+        ->post(route('administration.changelogs.store'), [
+            'title' => 'Role access manager improvements',
+            'status' => 'published',
+            'released_at' => '2026-04-07',
+            'notes' => '<p>Added access checklists for roles and users.</p>',
+        ])
+        ->assertRedirect(route('administration.changelogs.index'));
+
+    $changelog = Changelog::query()->where('version', 'v2026.04.07')->firstOrFail();
+
+    expect($changelog->title)->toBe('Role access manager improvements')
+        ->and($changelog->status)->toBe('published');
+});
+
+it('allows the admin to update a changelog from the administration section', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $changelog = Changelog::query()->create([
+        'version' => 'v1.2.4',
+        'title' => 'Old title',
+        'status' => 'draft',
+    ]);
+
+    $this->actingAs($admin)
+        ->put(route('administration.changelogs.update', $changelog), [
+            'version' => 'v1.2.4',
+            'title' => 'Updated title',
+            'status' => 'published',
+            'released_at' => '2026-04-06',
+            'notes' => '<p>Updated notes.</p>',
+        ])
+        ->assertRedirect(route('administration.changelogs.index'));
+
+    $changelog->refresh();
+
+    expect($changelog->title)->toBe('Updated title')
+        ->and($changelog->status)->toBe('published');
+});
+
+it('allows the admin to delete a changelog from the administration section', function () {
+    /** @var TestCase $this */
+    $this->seed(DatabaseSeeder::class);
+    $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
+    $changelog = Changelog::query()->create([
+        'version' => 'v1.2.0',
+        'title' => 'Delete me',
+        'status' => 'draft',
+    ]);
+
+    $this->actingAs($admin)
+        ->delete(route('administration.changelogs.destroy', $changelog))
+        ->assertRedirect(route('administration.changelogs.index'));
+
+    $this->assertDatabaseMissing('changelogs', [
+        'id' => $changelog->id,
+    ]);
 });
 
 it('shows the report sub navigation items when opening a report child page', function () {

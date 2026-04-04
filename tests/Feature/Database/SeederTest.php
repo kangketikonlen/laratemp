@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Administration\Changelog;
 use App\Models\Settings\Module;
 use App\Models\Settings\NavigationItem;
 use App\Models\Settings\Role;
@@ -18,6 +19,7 @@ it('seeds the default auth and settings data', function () {
     $admin = User::query()->where('username', config('bootstrap_admin.username'))->first();
     $role = Role::query()->where('name', 'admin')->first();
     $institution = Institution::query()->first();
+    $changelog = Changelog::query()->where('version', 'v1.2.0')->first();
     $modules = Module::query()
         ->orderBy('sort_order')
         ->orderBy('name')
@@ -57,6 +59,7 @@ it('seeds the default auth and settings data', function () {
     expect($admin)->not->toBeNull()
         ->and($role)->not->toBeNull()
         ->and($institution)->not->toBeNull()
+        ->and($changelog)->not->toBeNull()
         ->and($institution->address)->not->toBeEmpty()
         ->and($role->display_name)->toBe('Administrator')
         ->and($role->is_system)->toBeTrue()

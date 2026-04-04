@@ -76,12 +76,24 @@
                         </div>
 
                         <div class="dashboard-notes">
-                            @foreach ($releaseNotes as $note)
+                            @if ($releaseNotes->isEmpty())
                                 <div class="dashboard-note">
-                                    <span class="mt-1 h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-                                    <p>{{ $note }}</p>
+                                    <span class="mt-1 h-2.5 w-2.5 rounded-full bg-slate-400"></span>
+                                    <p>Belum ada release note yang dipublikasikan.</p>
                                 </div>
-                            @endforeach
+                            @else
+                                @foreach ($releaseNotes as $note)
+                                    <div class="dashboard-note">
+                                        <span class="mt-1 h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                                        <div>
+                                            <p class="font-medium text-slate-800">{{ $note->version }} · {{ $note->title }}</p>
+                                            @if (filled($note->previewText()))
+                                                <p class="mt-1">{{ $note->previewText() }}</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
                         </div>
                     </article>
                 </div>

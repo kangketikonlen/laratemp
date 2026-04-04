@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Administration\ChangelogSeeder;
 use Database\Seeders\Auth\AdminUserSeeder;
 use Database\Seeders\Auth\RoleAndPermissionSeeder;
 use Database\Seeders\Settings\GeneralSettingsSeeder;
@@ -20,6 +21,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             GeneralSettingsSeeder::class,
             InstitutionSeeder::class,
+            ChangelogSeeder::class,
         ]);
     }
 }

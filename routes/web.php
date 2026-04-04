@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Administration\ChangelogController;
+use App\Models\Administration\Changelog;
 use App\Http\Controllers\Master\RoleController;
 use App\Http\Controllers\Master\UserController;
 use App\Http\Controllers\Settings\InstitutionController;
@@ -46,12 +48,12 @@ Route::middleware('auth')->group(function () {
             ['label' => 'Menu Tersedia', 'value' => number_format(NavigationItem::query()->count())],
         ];
 
-        $releaseNotes = [
-            'Perbaikan struktur modul, navbar, dan subnavbar berbasis role.',
-            'Dashboard sekarang menampilkan entry module sebagai landing page aplikasi.',
-            'General Settings sudah menjadi module utama dengan section terpisah.',
-            'Branch Master, Settings, Administration, dan Report siap dikembangkan lebih lanjut.',
-        ];
+        $releaseNotes = Changelog::query()
+            ->where('status', 'published')
+            ->orderByDesc('released_at')
+            ->orderByDesc('created_at')
+            ->limit(4)
+            ->get(['version', 'title', 'notes', 'released_at']);
 
         return view('auth.dashboard', [
             'content' => 'dashboard',
@@ -167,10 +169,23 @@ Route::middleware('auth')->group(function () {
         'description' => 'Administrative tools and controls will be organized here.',
     ])->name('administration.index');
 
-    Route::view('/administration/changelogs', 'auth.module', [
-        'title' => 'Changelogs',
-        'description' => 'Review application changelogs from the administration section.',
-    ])->name('administration.changelogs.index');
+    Route::middleware('can:view_changelogs')->group(function () {
+        Route::get('/administration/changelogs', [ChangelogController::class, 'index'])->name('administration.changelogs.index');
+    });
+
+    Route::middleware('can:create_changelogs')->group(function () {
+        Route::get('/administration/changelogs/create', [ChangelogController::class, 'create'])->name('administration.changelogs.create');
+        Route::post('/administration/changelogs', [ChangelogController::class, 'store'])->name('administration.changelogs.store');
+    });
+
+    Route::middleware('can:update_changelogs')->group(function () {
+        Route::get('/administration/changelogs/{changelog}/edit', [ChangelogController::class, 'edit'])->name('administration.changelogs.edit');
+        Route::match(['put', 'patch'], '/administration/changelogs/{changelog}', [ChangelogController::class, 'update'])->name('administration.changelogs.update');
+    });
+
+    Route::middleware('can:delete_changelogs')->group(function () {
+        Route::delete('/administration/changelogs/{changelog}', [ChangelogController::class, 'destroy'])->name('administration.changelogs.destroy');
+    });
 
     Route::view('/administration/work-progress', 'auth.module', [
         'title' => 'Work Progress',

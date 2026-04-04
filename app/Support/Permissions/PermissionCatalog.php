@@ -45,6 +45,18 @@ final class PermissionCatalog
                 ],
             ],
             [
+                'key' => 'changelogs',
+                'title' => 'Changelogs',
+                'description' => 'Kontrol akses CRUD untuk catatan rilis dan update aplikasi.',
+                'bulk_label' => 'Full CRUD',
+                'permissions' => [
+                    ['name' => 'view_changelogs', 'label' => 'View', 'description' => 'Melihat daftar changelog dan catatan rilis.'],
+                    ['name' => 'create_changelogs', 'label' => 'Create', 'description' => 'Membuat changelog baru.'],
+                    ['name' => 'update_changelogs', 'label' => 'Update', 'description' => 'Memperbarui changelog yang ada.'],
+                    ['name' => 'delete_changelogs', 'label' => 'Delete', 'description' => 'Menghapus changelog dari sistem.'],
+                ],
+            ],
+            [
                 'key' => 'institutions',
                 'title' => 'Institution Settings',
                 'description' => 'Kontrol akses untuk pengaturan branding dan identitas institusi.',
