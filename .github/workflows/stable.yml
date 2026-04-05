@@ -38,147 +38,147 @@ jobs:
           PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PRESERVE_VERSION: 5
 
-  build:
-    name: Build and publish image
-    runs-on: ubuntu-24.04
-    needs: tagging
-    outputs:
-      latest_version: ${{ steps.resolve-version.outputs.version }}
+  # build:
+  #   name: Build and publish image
+  #   runs-on: ubuntu-24.04
+  #   needs: tagging
+  #   outputs:
+  #     latest_version: ${{ steps.resolve-version.outputs.version }}
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Fetch tags
-        run: git fetch --force --tags origin
+  #     - name: Fetch tags
+  #       run: git fetch --force --tags origin
 
-      - name: Resolve release version
-        id: resolve-version
-        shell: bash
-        run: |
-          set -euo pipefail
+  #     - name: Resolve release version
+  #       id: resolve-version
+  #       shell: bash
+  #       run: |
+  #         set -euo pipefail
 
-          version_tag="$(git tag --points-at HEAD --sort=-v:refname | head -n1)"
-          if [ -z "$version_tag" ]; then
-            version_tag="$(git tag --sort=-v:refname | head -n1)"
-          fi
+  #         version_tag="$(git tag --points-at HEAD --sort=-v:refname | head -n1)"
+  #         if [ -z "$version_tag" ]; then
+  #           version_tag="$(git tag --sort=-v:refname | head -n1)"
+  #         fi
 
-          if [ -z "$version_tag" ]; then
-            echo "No git tag found after tagging step." >&2
-            exit 1
-          fi
+  #         if [ -z "$version_tag" ]; then
+  #           echo "No git tag found after tagging step." >&2
+  #           exit 1
+  #         fi
 
-          version="${version_tag#v}"
-          image_id="${IMAGE_REGISTRY}/$(echo "${{ github.repository_owner }}/${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')"
+  #         version="${version_tag#v}"
+  #         image_id="${IMAGE_REGISTRY}/$(echo "${{ github.repository_owner }}/${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')"
 
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "image_id=$image_id" >> "$GITHUB_OUTPUT"
+  #         echo "version=$version" >> "$GITHUB_OUTPUT"
+  #         echo "image_id=$image_id" >> "$GITHUB_OUTPUT"
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.IMAGE_REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Log in to GHCR
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ${{ env.IMAGE_REGISTRY }}
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ steps.resolve-version.outputs.image_id }}:${{ steps.resolve-version.outputs.version }}
-          labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            runnumber=${{ github.run_id }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          provenance: false
+  #     - name: Build and push image
+  #       uses: docker/build-push-action@v6
+  #       with:
+  #         context: .
+  #         file: ./Dockerfile
+  #         push: true
+  #         tags: ${{ steps.resolve-version.outputs.image_id }}:${{ steps.resolve-version.outputs.version }}
+  #         labels: |
+  #           org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+  #           org.opencontainers.image.revision=${{ github.sha }}
+  #           runnumber=${{ github.run_id }}
+  #         cache-from: type=gha
+  #         cache-to: type=gha,mode=max
+  #         provenance: false
 
-  deploy:
-    name: Upload to server
-    runs-on: ubuntu-24.04
-    needs:
-      - build
+  # deploy:
+  #   name: Upload to server
+  #   runs-on: ubuntu-24.04
+  #   needs:
+  #     - build
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
 
-      - name: Prepare local files
-        working-directory: .docker/server
-        shell: bash
-        run: |
-          set -euo pipefail
-          bash bin/create-storage.sh
-          bash bin/generate-env.sh
-          bash bin/generate-echo-config.sh
+  #     - name: Prepare local files
+  #       working-directory: .docker/server
+  #       shell: bash
+  #       run: |
+  #         set -euo pipefail
+  #         bash bin/create-storage.sh
+  #         bash bin/generate-env.sh
+  #         bash bin/generate-echo-config.sh
 
-      - name: Deploy to server
-        uses: kangketikonlen/ssh-pipeline@v0.0.3
-        with:
-          host: ${{ secrets.SERVER }}
-          user: ${{ secrets.USERNAME }}
-          pass: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.SSH_PORT }}
-          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
-          connect_timeout: 10m
-          scp: |
-            '.docker/server/.env' => ${{ secrets.DIRECTORY }}
-            '.docker/server/run.sh' => ${{ secrets.DIRECTORY }}
-            '.docker/server/bin/generate-echo-config.sh' => ${{ secrets.DIRECTORY }}/bin
-            '.docker/server/storage' => ${{ secrets.DIRECTORY }}
-            '.docker/server/docker-compose.yml' => ${{ secrets.DIRECTORY }}
-          last_ssh: |
-            cd ${{ secrets.DIRECTORY }}
-            sed -i "s/DOCKER_IMAGE_VERSION=.*/DOCKER_IMAGE_VERSION=${{ needs.build.outputs.latest_version }}/g" .env
-            sed -i 's#APP_URL=.*#APP_URL=${{ secrets.WEB_URL }}#' .env
-            sed -i 's#APP_KEY=.*#APP_KEY=${{ secrets.APP_KEY }}#' .env
-            sed -i 's#HORIZON_DOMAIN=.*#HORIZON_DOMAIN=${{ secrets.WEB_URL }}#' .env
-            sed -i 's#LARAVEL_ECHO_URL=.*#LARAVEL_ECHO_URL=${{ secrets.LARAVEL_ECHO_URL }}#' .env
-            sed -i "s/DB_USERNAME=.*/DB_USERNAME=${{ secrets.DB_USERNAME }}/g" .env
-            sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${{ secrets.DB_PASSWORD }}/g" .env
-            sed -i "s/AKADEMIK_HOST=.*/AKADEMIK_HOST=${{ secrets.AKADEMIK_HOST }}/g" .env
-            sed -i "s/AKADEMIK_PORT=.*/AKADEMIK_PORT=${{ secrets.AKADEMIK_PORT }}/g" .env
-            sed -i "s/AKADEMIK_DATABASE=.*/AKADEMIK_DATABASE=${{ secrets.AKADEMIK_DATABASE }}/g" .env
-            sed -i "s/AKADEMIK_USERNAME=.*/AKADEMIK_USERNAME=${{ secrets.AKADEMIK_USERNAME }}/g" .env
-            sed -i "s/AKADEMIK_PASSWORD=.*/AKADEMIK_PASSWORD=${{ secrets.AKADEMIK_PASSWORD }}/g" .env
-            sed -i "s/RESOURCE_HOST=.*/RESOURCE_HOST=${{ secrets.RESOURCE_HOST }}/g" .env
-            sed -i "s/RESOURCE_PORT=.*/RESOURCE_PORT=${{ secrets.RESOURCE_PORT }}/g" .env
-            sed -i "s/RESOURCE_DATABASE=.*/RESOURCE_DATABASE=${{ secrets.RESOURCE_DATABASE }}/g" .env
-            sed -i "s/RESOURCE_USERNAME=.*/RESOURCE_USERNAME=${{ secrets.RESOURCE_USERNAME }}/g" .env
-            sed -i "s/RESOURCE_PASSWORD=.*/RESOURCE_PASSWORD=${{ secrets.RESOURCE_PASSWORD }}/g" .env
-            sed -i "s/SKKM_HOST=.*/SKKM_HOST=${{ secrets.SKKM_HOST }}/g" .env
-            sed -i "s/SKKM_PORT=.*/SKKM_PORT=${{ secrets.SKKM_PORT }}/g" .env
-            sed -i "s/SKKM_DATABASE=.*/SKKM_DATABASE=${{ secrets.SKKM_DATABASE }}/g" .env
-            sed -i "s/SKKM_USERNAME=.*/SKKM_USERNAME=${{ secrets.SKKM_USERNAME }}/g" .env
-            sed -i "s/SKKM_PASSWORD=.*/SKKM_PASSWORD=${{ secrets.SKKM_PASSWORD }}/g" .env
-            sed -i "s/PMB_HOST=.*/PMB_HOST=${{ secrets.PMB_HOST }}/g" .env
-            sed -i "s/PMB_PORT=.*/PMB_PORT=${{ secrets.PMB_PORT }}/g" .env
-            sed -i "s/PMB_DATABASE=.*/PMB_DATABASE=${{ secrets.PMB_DATABASE }}/g" .env
-            sed -i "s/PMB_USERNAME=.*/PMB_USERNAME=${{ secrets.PMB_USERNAME }}/g" .env
-            sed -i "s/PMB_PASSWORD=.*/PMB_PASSWORD=${{ secrets.PMB_PASSWORD }}/g" .env
-            sed -i "s/FK_HOST=.*/FK_HOST=${{ secrets.FK_HOST }}/g" .env
-            sed -i "s/FK_PORT=.*/FK_PORT=${{ secrets.FK_PORT }}/g" .env
-            sed -i "s/FK_DATABASE=.*/FK_DATABASE=${{ secrets.FK_DATABASE }}/g" .env
-            sed -i "s/FK_USERNAME=.*/FK_USERNAME=${{ secrets.FK_USERNAME }}/g" .env
-            sed -i "s/FK_PASSWORD=.*/FK_PASSWORD=${{ secrets.FK_PASSWORD }}/g" .env
-            sed -i "s/BNI_PREFIX=.*/BNI_PREFIX=${{ secrets.BNI_PREFIX }}/g" .env
-            sed -i "s/BNI_CLIENT_ID=.*/BNI_CLIENT_ID=${{ secrets.BNI_CLIENT_ID }}/g" .env
-            sed -i "s/BNI_SECRET_KEY=.*/BNI_SECRET_KEY=${{ secrets.BNI_SECRET_KEY }}/g" .env
-            sed -i 's#BNI_URL=.*#BNI_URL=${{ secrets.BNI_URL }}#' .env
-            sed -i 's#KAI_COOKIEID=.*#KAI_COOKIEID=${{ secrets.KAI_COOKIEID }}#' .env
-            sed -i 's#KAI_IV=.*#KAI_IV=${{ secrets.KAI_IV }}#' .env
-            sed -i 's#KAI_SECRET_KEY=.*#KAI_SECRET_KEY=${{ secrets.KAI_SECRET_KEY }}#' .env
-            sed -i 's#KAI_SESSIONID=.*#KAI_SESSIONID=${{ secrets.KAI_SESSIONID }}#' .env
-            sed -i 's#KAI_URL=.*#KAI_URL=${{ secrets.KAI_URL }}#' .env
-            sed -i 's#GOOGLE_CLIENT_ID=.*#GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}#' .env
-            sed -i 's#GOOGLE_CLIENT_SECRET=.*#GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}#' .env
-            sed -i 's#GOOGLE_REDIRECT_URI=.*#GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}#' .env
-            bash run.sh
+  #     - name: Deploy to server
+  #       uses: kangketikonlen/ssh-pipeline@v0.0.3
+  #       with:
+  #         host: ${{ secrets.SERVER }}
+  #         user: ${{ secrets.USERNAME }}
+  #         pass: ${{ secrets.PASSWORD }}
+  #         port: ${{ secrets.SSH_PORT }}
+  #         known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+  #         connect_timeout: 10m
+  #         scp: |
+  #           '.docker/server/.env' => ${{ secrets.DIRECTORY }}
+  #           '.docker/server/run.sh' => ${{ secrets.DIRECTORY }}
+  #           '.docker/server/bin/generate-echo-config.sh' => ${{ secrets.DIRECTORY }}/bin
+  #           '.docker/server/storage' => ${{ secrets.DIRECTORY }}
+  #           '.docker/server/docker-compose.yml' => ${{ secrets.DIRECTORY }}
+  #         last_ssh: |
+  #           cd ${{ secrets.DIRECTORY }}
+  #           sed -i "s/DOCKER_IMAGE_VERSION=.*/DOCKER_IMAGE_VERSION=${{ needs.build.outputs.latest_version }}/g" .env
+  #           sed -i 's#APP_URL=.*#APP_URL=${{ secrets.WEB_URL }}#' .env
+  #           sed -i 's#APP_KEY=.*#APP_KEY=${{ secrets.APP_KEY }}#' .env
+  #           sed -i 's#HORIZON_DOMAIN=.*#HORIZON_DOMAIN=${{ secrets.WEB_URL }}#' .env
+  #           sed -i 's#LARAVEL_ECHO_URL=.*#LARAVEL_ECHO_URL=${{ secrets.LARAVEL_ECHO_URL }}#' .env
+  #           sed -i "s/DB_USERNAME=.*/DB_USERNAME=${{ secrets.DB_USERNAME }}/g" .env
+  #           sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${{ secrets.DB_PASSWORD }}/g" .env
+  #           sed -i "s/AKADEMIK_HOST=.*/AKADEMIK_HOST=${{ secrets.AKADEMIK_HOST }}/g" .env
+  #           sed -i "s/AKADEMIK_PORT=.*/AKADEMIK_PORT=${{ secrets.AKADEMIK_PORT }}/g" .env
+  #           sed -i "s/AKADEMIK_DATABASE=.*/AKADEMIK_DATABASE=${{ secrets.AKADEMIK_DATABASE }}/g" .env
+  #           sed -i "s/AKADEMIK_USERNAME=.*/AKADEMIK_USERNAME=${{ secrets.AKADEMIK_USERNAME }}/g" .env
+  #           sed -i "s/AKADEMIK_PASSWORD=.*/AKADEMIK_PASSWORD=${{ secrets.AKADEMIK_PASSWORD }}/g" .env
+  #           sed -i "s/RESOURCE_HOST=.*/RESOURCE_HOST=${{ secrets.RESOURCE_HOST }}/g" .env
+  #           sed -i "s/RESOURCE_PORT=.*/RESOURCE_PORT=${{ secrets.RESOURCE_PORT }}/g" .env
+  #           sed -i "s/RESOURCE_DATABASE=.*/RESOURCE_DATABASE=${{ secrets.RESOURCE_DATABASE }}/g" .env
+  #           sed -i "s/RESOURCE_USERNAME=.*/RESOURCE_USERNAME=${{ secrets.RESOURCE_USERNAME }}/g" .env
+  #           sed -i "s/RESOURCE_PASSWORD=.*/RESOURCE_PASSWORD=${{ secrets.RESOURCE_PASSWORD }}/g" .env
+  #           sed -i "s/SKKM_HOST=.*/SKKM_HOST=${{ secrets.SKKM_HOST }}/g" .env
+  #           sed -i "s/SKKM_PORT=.*/SKKM_PORT=${{ secrets.SKKM_PORT }}/g" .env
+  #           sed -i "s/SKKM_DATABASE=.*/SKKM_DATABASE=${{ secrets.SKKM_DATABASE }}/g" .env
+  #           sed -i "s/SKKM_USERNAME=.*/SKKM_USERNAME=${{ secrets.SKKM_USERNAME }}/g" .env
+  #           sed -i "s/SKKM_PASSWORD=.*/SKKM_PASSWORD=${{ secrets.SKKM_PASSWORD }}/g" .env
+  #           sed -i "s/PMB_HOST=.*/PMB_HOST=${{ secrets.PMB_HOST }}/g" .env
+  #           sed -i "s/PMB_PORT=.*/PMB_PORT=${{ secrets.PMB_PORT }}/g" .env
+  #           sed -i "s/PMB_DATABASE=.*/PMB_DATABASE=${{ secrets.PMB_DATABASE }}/g" .env
+  #           sed -i "s/PMB_USERNAME=.*/PMB_USERNAME=${{ secrets.PMB_USERNAME }}/g" .env
+  #           sed -i "s/PMB_PASSWORD=.*/PMB_PASSWORD=${{ secrets.PMB_PASSWORD }}/g" .env
+  #           sed -i "s/FK_HOST=.*/FK_HOST=${{ secrets.FK_HOST }}/g" .env
+  #           sed -i "s/FK_PORT=.*/FK_PORT=${{ secrets.FK_PORT }}/g" .env
+  #           sed -i "s/FK_DATABASE=.*/FK_DATABASE=${{ secrets.FK_DATABASE }}/g" .env
+  #           sed -i "s/FK_USERNAME=.*/FK_USERNAME=${{ secrets.FK_USERNAME }}/g" .env
+  #           sed -i "s/FK_PASSWORD=.*/FK_PASSWORD=${{ secrets.FK_PASSWORD }}/g" .env
+  #           sed -i "s/BNI_PREFIX=.*/BNI_PREFIX=${{ secrets.BNI_PREFIX }}/g" .env
+  #           sed -i "s/BNI_CLIENT_ID=.*/BNI_CLIENT_ID=${{ secrets.BNI_CLIENT_ID }}/g" .env
+  #           sed -i "s/BNI_SECRET_KEY=.*/BNI_SECRET_KEY=${{ secrets.BNI_SECRET_KEY }}/g" .env
+  #           sed -i 's#BNI_URL=.*#BNI_URL=${{ secrets.BNI_URL }}#' .env
+  #           sed -i 's#KAI_COOKIEID=.*#KAI_COOKIEID=${{ secrets.KAI_COOKIEID }}#' .env
+  #           sed -i 's#KAI_IV=.*#KAI_IV=${{ secrets.KAI_IV }}#' .env
+  #           sed -i 's#KAI_SECRET_KEY=.*#KAI_SECRET_KEY=${{ secrets.KAI_SECRET_KEY }}#' .env
+  #           sed -i 's#KAI_SESSIONID=.*#KAI_SESSIONID=${{ secrets.KAI_SESSIONID }}#' .env
+  #           sed -i 's#KAI_URL=.*#KAI_URL=${{ secrets.KAI_URL }}#' .env
+  #           sed -i 's#GOOGLE_CLIENT_ID=.*#GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}#' .env
+  #           sed -i 's#GOOGLE_CLIENT_SECRET=.*#GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}#' .env
+  #           sed -i 's#GOOGLE_REDIRECT_URI=.*#GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}#' .env
+  #           bash run.sh
