@@ -49,14 +49,6 @@
                             </div>
                         </div>
 
-                        <div class="dashboard-stats-grid">
-                            @foreach ($highlights as $highlight)
-                                <div class="dashboard-stat">
-                                    <p class="dashboard-stat-label">{{ $highlight['label'] }}</p>
-                                    <p class="dashboard-stat-value">{{ $highlight['value'] }}</p>
-                                </div>
-                            @endforeach
-                        </div>
                     </article>
 
                     <article class="dashboard-surface">

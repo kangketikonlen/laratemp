@@ -15,12 +15,9 @@ use App\Http\Controllers\Settings\InstitutionController;
 use App\Http\Controllers\Settings\PermissionController;
 use App\Models\Settings\Institution;
 use App\Models\Settings\Module;
-use App\Models\Settings\NavigationItem;
-use App\Models\Settings\Role;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
-use Spatie\Permission\Models\Permission;
 
 Route::redirect('/', '/login');
 
@@ -47,13 +44,6 @@ Route::middleware('auth')->group(function () {
 
         $institution = Institution::query()->first();
 
-        $highlights = [
-            ['label' => 'Pengguna Aktif', 'value' => number_format(User::query()->count())],
-            ['label' => 'Role Terdaftar', 'value' => number_format(Role::query()->count())],
-            ['label' => 'Permission Aktif', 'value' => number_format(Permission::query()->count())],
-            ['label' => 'Menu Tersedia', 'value' => number_format(NavigationItem::query()->count())],
-        ];
-
         $releaseNotes = Changelog::query()
             ->where('status', 'published')
             ->orderByDesc('released_at')
@@ -72,7 +62,6 @@ Route::middleware('auth')->group(function () {
             'content' => 'dashboard',
             'modules' => $modules,
             'institution' => $institution,
-            'highlights' => $highlights,
             'releaseNotes' => $releaseNotes,
             'workProgressItems' => $workProgressItems,
         ]);
