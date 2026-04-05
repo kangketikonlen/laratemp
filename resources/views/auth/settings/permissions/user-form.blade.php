@@ -1,12 +1,12 @@
 <x-layouts.private-module :title="$title" :description="$description">
     <div class="private-page">
         <x-private.page-header
-            title="Manage User Access"
-            subtitle="Atur akses langsung untuk user ini di luar role yang mereka miliki."
+            title="Kelola Akses Pengguna"
+            subtitle="Atur akses langsung untuk pengguna ini di luar role yang mereka miliki."
         >
             <x-slot:actions>
-                <a href="{{ route('settings.permissions.index') }}" class="private-action-link">
-                    <span>Back to access manager</span>
+                <a href="{{ route('settings.permissions.index') }}" class="private-action-link icon-action tooltip-trigger" aria-label="Kembali ke pengelola akses" title="Kembali ke pengelola akses">
+                    <x-ui.icon name="arrow-left" class="h-4 w-4" />
                 </a>
             </x-slot:actions>
         </x-private.page-header>
@@ -21,7 +21,7 @@
 
         <section class="institution-settings-hero">
             <div>
-                <p class="institution-settings-kicker">Direct User Access</p>
+                <p class="institution-settings-kicker">Akses Langsung Pengguna</p>
                 <h2 class="institution-settings-title">{{ $user->name }}</h2>
                 <p class="institution-settings-copy">
                     Gunakan akses langsung hanya untuk pengecualian khusus. Untuk kebutuhan umum, tetap utamakan pengaturan lewat role.
@@ -34,18 +34,18 @@
                     <span class="institution-settings-stat-value">{{ $user->username }}</span>
                 </div>
                 <div class="institution-settings-stat">
-                    <span class="institution-settings-stat-label">Current Direct Access</span>
-                    <span class="institution-settings-stat-value">{{ $user->permissions->count() }} actions</span>
+                    <span class="institution-settings-stat-label">Akses Langsung Saat Ini</span>
+                    <span class="institution-settings-stat-value">{{ $user->permissions->count() }} aksi</span>
                 </div>
             </div>
         </section>
 
         <x-private.panel
-            title="Direct Access Checklist"
-            description="Checklist ini menambah hak akses khusus untuk user ini tanpa mengubah role yang mereka punya."
+            title="Checklist Akses Langsung"
+            description="Checklist ini menambah hak akses khusus untuk pengguna ini tanpa mengubah role yang mereka punya."
         >
             <div class="private-panel-soft mb-5">
-                Rekomendasi: pakai role untuk akses utama, lalu gunakan direct access hanya bila benar-benar perlu override khusus.
+                Rekomendasi: pakai role untuk akses utama, lalu gunakan akses langsung hanya bila benar-benar perlu pengecualian khusus.
             </div>
 
             <form method="POST" action="{{ route('settings.permissions.users.update', $user) }}" class="space-y-6">
@@ -60,11 +60,9 @@
                 />
 
                 <div class="private-form-actions">
-                    <a href="{{ route('settings.permissions.index') }}" class="private-action-link">Cancel</a>
+                    <x-ui.cancel-link :href="route('settings.permissions.index')" />
 
-                    <x-ui.button type="submit" variant="primary" :block="false">
-                        Save Direct Access
-                    </x-ui.button>
+                    <x-ui.save-button label="Simpan akses langsung" />
                 </div>
             </form>
         </x-private.panel>

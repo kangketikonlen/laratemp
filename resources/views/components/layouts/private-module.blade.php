@@ -1,6 +1,6 @@
 @props([
     'title' => config('app.name'),
-    'description' => 'Application workspace',
+    'description' => 'Ruang kerja aplikasi',
 ])
 
 @php
@@ -32,7 +32,7 @@
 
     if ($authUser instanceof \App\Models\User) {
         $authUser->loadMissing('roles.modules.navigationItems.parent');
-        $primaryRole = $authUser->roles->first()?->display_name ?? $authUser->roles->first()?->name ?? 'Workspace User';
+        $primaryRole = $authUser->roles->first()?->display_name ?? $authUser->roles->first()?->name ?? 'Pengguna Workspace';
 
         $assignedModules = $authUser->roles
             ->flatMap(fn ($role) => $role->modules)
@@ -89,7 +89,7 @@
 @endphp
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -123,7 +123,7 @@
                         ])
                     >
                         <x-ui.icon name="dashboard" class="h-4 w-4" />
-                        <span>Module Home</span>
+                        <span>Beranda Modul</span>
                     </a>
 
                     @foreach ($navbarItems as $item)
@@ -187,7 +187,7 @@
                 </nav>
 
                 <div class="workspace-footer">
-                    Crafted for {{ config('app.name') }}
+                    Dibuat untuk {{ config('app.name') }}
                 </div>
             </div>
         </aside>

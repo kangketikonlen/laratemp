@@ -10,25 +10,14 @@
             ]);
         };
 
-        $sortIcon = function (string $column) use ($sort, $direction) {
-            if ($sort !== $column) {
-                return '<>';
-            }
-
-            return $direction === 'asc' ? '^' : 'v';
-        };
     @endphp
 
     <div class="private-page">
-        <x-private.page-header :title="$title" subtitle="Master Data Management">
+        <x-private.page-header :title="$title" subtitle="Manajemen Data Master">
             <x-slot:actions>
-                <a href="{{ route('dashboard') }}" class="private-action-link">
-                    <span>Back to dashboard</span>
-                </a>
+                <x-ui.back-dashboard-link />
 
-                <a href="{{ route('master.users.create') }}" class="private-text-button">
-                    <span>Add User</span>
-                </a>
+                <x-ui.add-link :href="route('master.users.create')" label="Tambah pengguna" />
             </x-slot:actions>
         </x-private.page-header>
 
@@ -40,69 +29,40 @@
             <x-private.feedback :message="$errors->first()" variant="danger" />
         @endif
 
-        <x-private.panel
-            title="Daftar User"
-            description="Kelola akun aplikasi, identitas login, dan assignment role dari satu tempat."
-            :badge="$users->total().' records'"
-        >
+        <x-private.panel title="Daftar User" description="Kelola akun aplikasi, identitas login, dan penetapan role dari satu tempat." :badge="$users->total().' data'">
             <form method="GET" action="{{ route('master.users.index') }}" class="private-toolbar">
                 <div class="private-search">
-                    <x-form.input
-                        name="search"
-                        :value="$search"
-                        icon="user"
-                        placeholder="Cari nama, username, atau email..."
-                        autocomplete="off"
-                    />
+                    <x-form.input name="search" :value="$search" icon="user" placeholder="Cari nama, username, atau email..." autocomplete="off" />
 
                     <input type="hidden" name="sort" value="{{ $sort }}">
                     <input type="hidden" name="direction" value="{{ $direction }}">
                 </div>
 
                 <div class="private-inline-actions">
-                    <x-ui.button type="submit" variant="secondary" :block="false">Search</x-ui.button>
+                    <x-ui.search-button />
 
                     @if (filled($search))
-                        <a href="{{ route('master.users.index') }}" class="private-action-link">Reset</a>
+                        <a href="{{ route('master.users.index') }}" class="private-action-link icon-action tooltip-trigger" aria-label="Atur ulang filter" title="Atur ulang filter">
+                            <x-ui.icon name="rotate" class="h-4 w-4" />
+                        </a>
                     @endif
                 </div>
             </form>
 
             @if ($users->isEmpty())
                 <div class="private-panel-empty">
-                    Belum ada user yang cocok dengan filter saat ini. Tambahkan user baru atau ubah kata kunci pencarian.
+                    Belum ada pengguna yang cocok dengan filter saat ini. Tambahkan pengguna baru atau ubah kata kunci pencarian.
                 </div>
             @else
-                <div class="private-table-shell">
-                    <table class="private-table">
+                <x-private.data-table>
                         <thead>
                             <tr>
-                                <th>
-                                    <a href="{{ $sortUrl('name') }}" class="private-table-sort">
-                                        <span>User</span>
-                                        <span aria-hidden="true">{{ $sortIcon('name') }}</span>
-                                    </a>
-                                </th>
-                                <th>
-                                    <a href="{{ $sortUrl('username') }}" class="private-table-sort">
-                                        <span>Username</span>
-                                        <span aria-hidden="true">{{ $sortIcon('username') }}</span>
-                                    </a>
-                                </th>
-                                <th>
-                                    <a href="{{ $sortUrl('email') }}" class="private-table-sort">
-                                        <span>Email</span>
-                                        <span aria-hidden="true">{{ $sortIcon('email') }}</span>
-                                    </a>
-                                </th>
+                                <x-private.table-sort-heading :href="$sortUrl('name')" label="User" :active="$sort === 'name'" :direction="$direction" />
+                                <x-private.table-sort-heading :href="$sortUrl('username')" label="Username" :active="$sort === 'username'" :direction="$direction" />
+                                <x-private.table-sort-heading :href="$sortUrl('email')" label="Email" :active="$sort === 'email'" :direction="$direction" />
                                 <th>Role</th>
-                                <th>
-                                    <a href="{{ $sortUrl('created_at') }}" class="private-table-sort">
-                                        <span>Dibuat</span>
-                                        <span aria-hidden="true">{{ $sortIcon('created_at') }}</span>
-                                    </a>
-                                </th>
-                                <th class="text-right">Action</th>
+                                <x-private.table-sort-heading :href="$sortUrl('created_at')" label="Dibuat" :active="$sort === 'created_at'" :direction="$direction" />
+                                <th class="text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -122,7 +82,7 @@
                                                     {{ $role->display_name ?? $role->name }}
                                                 </span>
                                             @empty
-                                                <span class="private-table-muted">No role assigned</span>
+                                                <span class="private-table-muted">Belum ada role</span>
                                             @endforelse
                                         </div>
                                     </td>
@@ -131,29 +91,15 @@
                                     </td>
                                     <td>
                                         <div class="private-table-actions">
-                                            <a href="{{ route('master.users.edit', $managedUser) }}" class="private-action-link">
-                                                Edit
-                                            </a>
+                                            <x-ui.edit-link :href="route('master.users.edit', $managedUser)" label="Ubah pengguna" />
 
-                                            <form
-                                                method="POST"
-                                                action="{{ route('master.users.destroy', $managedUser) }}"
-                                                onsubmit="return confirm('Delete user {{ $managedUser->username }}?')"
-                                            >
-                                                @csrf
-                                                @method('DELETE')
-
-                                                <x-ui.button type="submit" variant="danger" :block="false">
-                                                    Delete
-                                                </x-ui.button>
-                                            </form>
+                                            <x-ui.delete-button :action="route('master.users.destroy', $managedUser)" label="Hapus pengguna" confirm="Hapus pengguna {{ $managedUser->username }}?" />
                                         </div>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
-                    </table>
-                </div>
+                </x-private.data-table>
 
                 <div class="mt-5">
                     {{ $users->links() }}

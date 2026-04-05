@@ -1,10 +1,8 @@
 <x-layouts.private-module :title="$title" :description="$description">
     <div class="private-page">
-        <x-private.page-header :title="$title" subtitle="Section Dashboard">
+        <x-private.page-header :title="$title" subtitle="Dashboard Bagian">
             <x-slot:actions>
-                <a href="{{ route('dashboard') }}" class="private-action-link">
-                    <span>Back to dashboard</span>
-                </a>
+                <x-ui.back-dashboard-link />
             </x-slot:actions>
         </x-private.page-header>
 

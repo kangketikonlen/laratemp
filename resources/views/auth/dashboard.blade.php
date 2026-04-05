@@ -1,29 +1,23 @@
-<x-layouts.private-role title="Dashboard" description="Application home">
+<x-layouts.private-role title="Dashboard" description="Beranda aplikasi">
     <div class="dashboard-shell dashboard-page">
         <div class="dashboard-page-inner">
             <section class="dashboard-hero">
                 <div class="dashboard-hero-content">
                     <div class="max-w-3xl">
-                        <p class="dashboard-kicker">Private Workspace</p>
+                        <p class="dashboard-kicker">Ruang Kerja Internal</p>
                         <h1 class="dashboard-title">Dashboard</h1>
                         <p class="dashboard-summary">
-                            Ringkasan cepat untuk workspace internal Anda. Pantau institusi, buka module utama, dan lihat catatan perubahan terbaru dari satu landing page.
+                            Ringkasan cepat untuk ruang kerja internal Anda. Pantau institusi, buka modul utama, dan lihat catatan perubahan terbaru dari satu halaman utama.
                         </p>
                     </div>
 
                     <div class="dashboard-header-actions">
                         <div class="dashboard-date-card">
-                            <p class="dashboard-date-label">Today</p>
+                            <p class="dashboard-date-label">Hari ini</p>
                             <p class="dashboard-date-value">{{ now()->translatedFormat('d M Y') }}</p>
                         </div>
 
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-ui.button type="submit" variant="danger" :block="false" class="rounded-2xl px-5 py-3">
-                                Logout
-                            </x-ui.button>
-                        </form>
+                        <x-ui.logout-button />
                     </div>
                 </div>
             </section>
@@ -37,7 +31,7 @@
                             </div>
 
                             <h2 class="dashboard-profile-title">
-                                {{ $institution?->name ?? 'Institution belum tersedia' }}
+                                {{ $institution?->name ?? 'Institusi belum tersedia' }}
                             </h2>
 
                             <p class="dashboard-profile-copy">
@@ -67,7 +61,7 @@
                     <article class="dashboard-surface">
                         <div class="dashboard-section-head">
                             <div>
-                                <p class="dashboard-section-kicker">Release Notes</p>
+                                <p class="dashboard-section-kicker">Catatan Rilis</p>
                                 <h2 class="dashboard-section-title">Catatan Pembaruan</h2>
                             </div>
                             <span class="dashboard-release-badge">
@@ -100,11 +94,11 @@
                     <article class="dashboard-surface">
                         <div class="dashboard-section-head">
                             <div>
-                                <p class="dashboard-section-kicker">Work Progress</p>
+                                <p class="dashboard-section-kicker">Progres Kerja</p>
                                 <h2 class="dashboard-section-title">Agenda Berjalan</h2>
                             </div>
                             <span class="dashboard-release-badge">
-                                {{ $workProgressItems->count() }} active
+                                {{ $workProgressItems->count() }} aktif
                             </span>
                         </div>
 
@@ -121,7 +115,7 @@
                                             <div class="min-w-0">
                                                 <p class="dashboard-progress-title">{{ $item->title }}</p>
                                                 <p class="dashboard-progress-meta">
-                                                    {{ $item->owner ?: 'Unassigned' }}
+                                                    {{ $item->owner ?: 'Belum ditugaskan' }}
                                                     @if ($item->target_date)
                                                         · Target {{ $item->target_date->format('d M Y') }}
                                                     @endif
@@ -129,8 +123,8 @@
                                             </div>
 
                                             <div class="dashboard-progress-tags">
-                                                <span class="private-role-badge private-role-badge--{{ $item->status }}">{{ \Illuminate\Support\Str::headline($item->status) }}</span>
-                                                <span class="private-role-badge private-role-badge--priority-{{ $item->priority }}">{{ ucfirst($item->priority) }}</span>
+                                                <span class="private-role-badge private-role-badge--{{ $item->status }}">{{ ['planned' => 'Direncanakan', 'in_progress' => 'Berjalan', 'done' => 'Selesai', 'blocked' => 'Terhambat'][$item->status] ?? \Illuminate\Support\Str::headline($item->status) }}</span>
+                                                <span class="private-role-badge private-role-badge--priority-{{ $item->priority }}">{{ ['low' => 'Rendah', 'medium' => 'Sedang', 'high' => 'Tinggi'][$item->priority] ?? ucfirst($item->priority) }}</span>
                                             </div>
                                         </div>
 
@@ -150,22 +144,22 @@
                 <article class="dashboard-surface">
                     <div class="dashboard-access-head">
                         <div>
-                            <p class="dashboard-access-kicker">Workspace Access</p>
-                            <h2 class="dashboard-access-title">Available Modules</h2>
+                            <p class="dashboard-access-kicker">Akses Workspace</p>
+                            <h2 class="dashboard-access-title">Modul Tersedia</h2>
                             <p class="dashboard-access-copy">
-                                Module utama yang bisa langsung dibuka dari dashboard.
+                                Modul utama yang bisa langsung dibuka dari dashboard.
                             </p>
                         </div>
 
                         <span class="private-panel-badge">
-                            {{ $modules->count() }} module{{ $modules->count() === 1 ? '' : 's' }}
+                            {{ $modules->count() }} modul
                         </span>
                     </div>
 
                     <div class="dashboard-modules">
                         @if ($modules->isEmpty())
                             <div class="private-panel-empty px-6 py-12 text-center">
-                                No modules are assigned to your account yet.
+                                Belum ada modul yang ditugaskan ke akun Anda.
                             </div>
                         @else
                             <div class="dashboard-modules-grid">
@@ -201,7 +195,7 @@
 
                                                 @if ($module->is_active)
                                                     <span class="dashboard-module-status">
-                                                        Active
+                                                        Aktif
                                                     </span>
                                                 @endif
                                             </div>
@@ -212,7 +206,7 @@
 
                                             @if ($hasRoute)
                                                 <div class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-sky-700">
-                                                    <span>Open module</span>
+                                                    <span>Buka modul</span>
                                                     <span aria-hidden="true" class="transition group-hover:translate-x-1">-></span>
                                                 </div>
                                             @endif

@@ -10,21 +10,12 @@
             ]);
         };
 
-        $sortIcon = function (string $column) use ($sort, $direction) {
-            if ($sort !== $column) {
-                return '<>';
-            }
-
-            return $direction === 'asc' ? '^' : 'v';
-        };
     @endphp
 
     <div class="private-page">
-        <x-private.page-header title="Activity Timeline" subtitle="Tinjau histori aktivitas penting dari sistem, user, dan operasional tim.">
+        <x-private.page-header title="Linimasa Aktivitas" subtitle="Tinjau histori aktivitas penting dari sistem, pengguna, dan operasional tim.">
             <x-slot:actions>
-                <a href="{{ route('dashboard') }}" class="private-action-link">
-                    <span>Back to dashboard</span>
-                </a>
+                <x-ui.back-dashboard-link />
             </x-slot:actions>
         </x-private.page-header>
 
@@ -33,9 +24,9 @@
         @endif
 
         <x-private.panel
-            title="Activity Records"
-            description="Halaman ini menampilkan aktivitas yang dicatat otomatis saat user login, logout, atau melakukan perubahan penting di aplikasi."
-            :badge="$logs->total().' records'"
+            title="Data Aktivitas"
+            description="Halaman ini menampilkan aktivitas yang dicatat otomatis saat pengguna login, logout, atau melakukan perubahan penting di aplikasi."
+            :badge="$logs->total().' data'"
         >
             <form method="GET" action="{{ route('report.activity-log.index') }}" class="private-toolbar">
                 <div class="private-search">
@@ -43,7 +34,7 @@
                         name="search"
                         :value="$search"
                         icon="clipboard"
-                        placeholder="Cari aktivitas, actor, category, status, atau detail..."
+                        placeholder="Cari aktivitas, pelaku, kategori, status, atau detail..."
                         autocomplete="off"
                     />
 
@@ -52,54 +43,30 @@
                 </div>
 
                 <div class="private-inline-actions">
-                    <x-ui.button type="submit" variant="secondary" :block="false">Search</x-ui.button>
+                    <x-ui.search-button />
 
                     @if (filled($search))
-                        <a href="{{ route('report.activity-log.index') }}" class="private-action-link">Reset</a>
+                        <a href="{{ route('report.activity-log.index') }}" class="private-action-link icon-action tooltip-trigger" aria-label="Atur ulang filter" title="Atur ulang filter">
+                            <x-ui.icon name="rotate" class="h-4 w-4" />
+                        </a>
                     @endif
                 </div>
             </form>
 
             @if ($logs->isEmpty())
                 <div class="private-panel-empty">
-                    Belum ada activity log yang cocok dengan filter saat ini. Aktivitas akan muncul otomatis setelah user mulai menggunakan aplikasi.
+                    Belum ada log aktivitas yang cocok dengan filter saat ini. Aktivitas akan muncul otomatis setelah pengguna mulai menggunakan aplikasi.
                 </div>
             @else
-                <div class="private-table-shell">
-                    <table class="private-table">
+                <x-private.data-table>
                         <thead>
                             <tr>
-                                <th>
-                                    <a href="{{ $sortUrl('activity') }}" class="private-table-sort">
-                                        <span>Activity</span>
-                                        <span aria-hidden="true">{{ $sortIcon('activity') }}</span>
-                                    </a>
-                                </th>
-                                <th>
-                                    <a href="{{ $sortUrl('actor') }}" class="private-table-sort">
-                                        <span>Actor</span>
-                                        <span aria-hidden="true">{{ $sortIcon('actor') }}</span>
-                                    </a>
-                                </th>
-                                <th>
-                                    <a href="{{ $sortUrl('category') }}" class="private-table-sort">
-                                        <span>Category</span>
-                                        <span aria-hidden="true">{{ $sortIcon('category') }}</span>
-                                    </a>
-                                </th>
-                                <th>
-                                    <a href="{{ $sortUrl('status') }}" class="private-table-sort">
-                                        <span>Status</span>
-                                        <span aria-hidden="true">{{ $sortIcon('status') }}</span>
-                                    </a>
-                                </th>
-                                <th>
-                                    <a href="{{ $sortUrl('logged_at') }}" class="private-table-sort">
-                                        <span>Logged At</span>
-                                        <span aria-hidden="true">{{ $sortIcon('logged_at') }}</span>
-                                    </a>
-                                </th>
-                                <th class="text-right">Action</th>
+                                <x-private.table-sort-heading :href="$sortUrl('activity')" label="Aktivitas" :active="$sort === 'activity'" :direction="$direction" />
+                                <x-private.table-sort-heading :href="$sortUrl('actor')" label="Pelaku" :active="$sort === 'actor'" :direction="$direction" />
+                                <x-private.table-sort-heading :href="$sortUrl('category')" label="Kategori" :active="$sort === 'category'" :direction="$direction" />
+                                <x-private.table-sort-heading :href="$sortUrl('status')" label="Status" :active="$sort === 'status'" :direction="$direction" />
+                                <x-private.table-sort-heading :href="$sortUrl('logged_at')" label="Waktu Dicatat" :active="$sort === 'logged_at'" :direction="$direction" />
+                                <th class="text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -112,7 +79,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <span class="private-table-muted">{{ $entry->actor ?: 'System' }}</span>
+                                        <span class="private-table-muted">{{ $entry->actor ?: 'Sistem' }}</span>
                                     </td>
                                     <td>
                                         <span class="private-role-badge private-role-badge--category-{{ $entry->category }}">{{ ucfirst($entry->category) }}</span>
@@ -125,16 +92,13 @@
                                     </td>
                                     <td>
                                         <div class="private-table-actions">
-                                            <a href="{{ route('report.activity-log.show', $entry) }}" class="private-action-link">
-                                                Detail
-                                            </a>
+                                            <x-ui.detail-link :href="route('report.activity-log.show', $entry)" label="Lihat detail aktivitas" />
                                         </div>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
-                    </table>
-                </div>
+                </x-private.data-table>
 
                 <div class="mt-5">
                     {{ $logs->links() }}

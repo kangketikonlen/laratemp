@@ -2,26 +2,14 @@
     <div class="private-page">
         <x-private.page-header :title="$module->name" subtitle="Beranda">
             <x-slot:actions>
-                <a href="{{ route('dashboard') }}" class="private-icon-button">
-                    <x-ui.icon name="dashboard" class="h-4 w-4" />
-                </a>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="private-text-button">Keluar</button>
-                </form>
+                <x-ui.back-dashboard-link />
+                <x-ui.logout-button />
             </x-slot:actions>
         </x-private.page-header>
 
-        <x-private.notice
-            :title="'Selamat datang di dashboard '.$module->name.', '.(auth()->user()?->name ?? auth()->user()?->username).'.'"
-            :message="$module->description.' Module ini merangkum pengelolaan master data, pengaturan aplikasi, administrasi operasional, dan laporan internal dalam satu workspace.'"
-        />
+        <x-private.notice :title="'Selamat datang di dashboard '.$module->name.', '.(auth()->user()?->name ?? auth()->user()?->username).'.'" :message="$module->description.' Modul ini merangkum pengelolaan data master, pengaturan aplikasi, administrasi operasional, dan laporan internal dalam satu ruang kerja.'" />
 
-        <x-private.panel
-            title="Section Utama"
-            description="Ringkasan section utama di dalam General Settings untuk membantu Anda langsung masuk ke area kerja yang dibutuhkan."
-            :badge="$navigationItems->count().' bagian'"
-        >
+        <x-private.panel title="Bagian Utama" description="Ringkasan bagian utama di dalam Pengaturan Umum untuk membantu Anda langsung masuk ke area kerja yang dibutuhkan." :badge="$navigationItems->count().' bagian'">
             @if ($navigationItems->isEmpty())
                 <div class="private-panel-empty">
                     Belum ada bagian yang tersedia untuk modul ini.
@@ -40,12 +28,7 @@
                                 : 'Berisi '.collect($childNames->take(3))->join(', ').($childNames->count() > 3 ? ', dan lainnya.' : '.');
                         @endphp
 
-                        <x-private.workspace-tile
-                            :title="$item->name"
-                            :description="$summary"
-                            :href="filled($item->route_name) && \Illuminate\Support\Facades\Route::has($item->route_name) ? route($item->route_name) : null"
-                            :suffix-icon="true"
-                        />
+                        <x-private.workspace-tile :title="$item->name" :description="$summary" :href="filled($item->route_name) && \Illuminate\Support\Facades\Route::has($item->route_name) ? route($item->route_name) : null" :suffix-icon="true" />
                     @endforeach
                 </div>
             @endif
@@ -53,14 +36,10 @@
 
         @if ($module->slug === 'general')
             <div class="grid gap-6 xl:grid-cols-2">
-                <x-private.panel
-                    title="Ringkasan Aktivitas"
-                    description="Aktivitas user dan sistem terbaru yang tercatat otomatis dari General Settings."
-                    :badge="$activitySummaryLogs->count().' terbaru'"
-                >
+                <x-private.panel title="Ringkasan Aktivitas" description="Aktivitas pengguna dan sistem terbaru yang tercatat otomatis dari Pengaturan Umum." :badge="$activitySummaryLogs->count().' terbaru'">
                     @if ($activitySummaryLogs->isEmpty())
                         <div class="private-panel-empty">
-                            Belum ada activity log terbaru untuk diringkas.
+                            Belum ada log aktivitas terbaru untuk diringkas.
                         </div>
                     @else
                         <div class="space-y-3">
@@ -71,7 +50,7 @@
                                         <span class="private-role-badge">{{ $entry->logged_at?->format('d M H:i') }}</span>
                                     </div>
                                     <p class="workspace-tile-copy">
-                                        {{ $entry->actor ?: 'System' }}
+                                        {{ $entry->actor ?: 'Sistem' }}
                                         @if (filled($entry->previewText(80)))
                                             · {{ $entry->previewText(80) }}
                                         @endif
@@ -82,14 +61,10 @@
                     @endif
                 </x-private.panel>
 
-                <x-private.panel
-                    title="Ringkasan Error"
-                    description="Ringkasan error terbaru agar tim cepat melihat masalah penting di modul ini."
-                    :badge="$errorSummaryLogs->count().' terbaru'"
-                >
+                <x-private.panel title="Ringkasan Error" description="Ringkasan error terbaru agar tim cepat melihat masalah penting di modul ini." :badge="$errorSummaryLogs->count().' terbaru'">
                     @if ($errorSummaryLogs->isEmpty())
                         <div class="private-panel-empty">
-                            Belum ada error log terbaru untuk diringkas.
+                            Belum ada log error terbaru untuk diringkas.
                         </div>
                     @else
                         <div class="space-y-3">

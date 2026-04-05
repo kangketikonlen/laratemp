@@ -28,11 +28,11 @@
 
 @layer components {
     .input-base {
-        @apply w-full h-11 px-3 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition text-sm;
+        @apply w-full h-11 px-3 rounded-md border border-gray-300 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition text-sm;
     }
 
     .input-file-base {
-        @apply w-full h-12 rounded-lg border border-gray-300 bg-gray-50 px-0 py-0 text-sm leading-[3rem] text-slate-700 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 file:mr-4 file:h-full file:border-0 file:border-r file:border-slate-200 file:bg-slate-100 file:px-4 file:text-sm file:font-medium file:text-slate-700 hover:file:bg-slate-200;
+        @apply w-full h-12 rounded-md border border-gray-300 bg-gray-50 px-0 py-0 text-sm leading-[3rem] text-slate-700 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 file:mr-4 file:h-full file:border-0 file:border-r file:border-slate-200 file:bg-slate-100 file:px-4 file:text-sm file:font-medium file:text-slate-700 hover:file:bg-slate-200;
     }
 
     .input-with-icon {
@@ -52,7 +52,11 @@
     }
 
     .btn {
-        @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-medium transition;
+        @apply inline-flex items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:gap-2 sm:px-3 sm:py-2 sm:text-sm;
+    }
+
+    .btn-icon {
+        @apply h-8 w-8 shrink-0 px-0 py-0 leading-none sm:h-9 sm:w-9;
     }
 
     .btn:disabled {
@@ -71,8 +75,12 @@
         @apply bg-red-600 text-white shadow-sm hover:bg-red-700;
     }
 
+    .btn-search {
+        @apply border border-cyan-300 bg-cyan-50 text-cyan-700 shadow-sm hover:bg-cyan-100 hover:border-cyan-400;
+    }
+
     .alert {
-        @apply flex items-start gap-2 rounded-lg border px-3 py-2 text-sm;
+        @apply flex items-start gap-2 rounded-md border px-3 py-2 text-sm;
     }
 
     .alert-danger {
@@ -88,7 +96,7 @@
     }
 
     .loading-screen__card {
-        @apply flex w-full max-w-sm flex-col items-center gap-4 rounded-2xl bg-white px-6 py-7 text-center shadow-xl;
+        @apply flex w-full max-w-sm flex-col items-center gap-4 rounded-xl bg-white px-6 py-7 text-center shadow-xl;
     }
 
     .loading-spinner {
@@ -96,7 +104,7 @@
     }
 
     .loading-spinner--button {
-        @apply h-4 w-4 border-2 border-white/40 border-t-white;
+        @apply h-3.5 w-3.5 border-2 border-white/40 border-t-white sm:h-4 sm:w-4;
     }
 
     .dashboard-shell {
@@ -106,7 +114,7 @@
     }
 
     .private-page {
-        @apply space-y-6;
+        @apply space-y-4 sm:space-y-6;
     }
 
     .private-page-header {
@@ -114,7 +122,7 @@
     }
 
     .private-page-title {
-        @apply text-3xl font-light tracking-tight text-slate-800;
+        @apply text-2xl font-light tracking-tight text-slate-800 sm:text-3xl;
     }
 
     .private-page-subtitle {
@@ -122,15 +130,15 @@
     }
 
     .private-panel {
-        @apply rounded-2xl border border-slate-200 bg-white p-5 shadow-sm;
+        @apply rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:rounded-xl sm:p-5;
     }
 
     .private-panel-soft {
-        @apply rounded-xl border border-sky-100 bg-sky-100/80 px-5 py-4 text-sky-700;
+        @apply rounded-lg border border-sky-100 bg-sky-100/80 px-4 py-3 text-sky-700 sm:px-5 sm:py-4;
     }
 
     .private-panel-title {
-        @apply text-lg font-semibold text-slate-900;
+        @apply text-base font-semibold text-slate-900 sm:text-lg;
     }
 
     .private-panel-description {
@@ -142,27 +150,90 @@
     }
 
     .private-panel-empty {
-        @apply rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500;
+        @apply rounded-md border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500;
     }
 
     .private-action-link {
-        @apply inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50;
+        @apply inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 sm:gap-2 sm:px-3 sm:py-2 sm:text-sm;
     }
 
     .private-action-link--disabled {
         @apply cursor-not-allowed opacity-50 hover:bg-white;
     }
 
+    .private-action-link--edit {
+        @apply border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100;
+    }
+
+    .private-action-link--add {
+        @apply border-sky-300 bg-sky-50 text-sky-700 hover:bg-sky-100;
+    }
+
+    .private-action-link--cancel {
+        @apply border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100;
+    }
+
+    .private-action-link--manage {
+        @apply border-violet-300 bg-violet-50 text-violet-700 hover:bg-violet-100;
+    }
+
+    .private-action-link--detail {
+        @apply border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100;
+    }
+
     .private-icon-button {
-        @apply inline-flex h-10 w-10 items-center justify-center rounded-lg border border-sky-300 bg-white text-sky-600 transition hover:bg-sky-50;
+        @apply inline-flex h-8 w-8 items-center justify-center rounded-md border border-sky-300 bg-white text-sky-600 transition hover:bg-sky-50 sm:h-9 sm:w-9;
     }
 
     .private-text-button {
-        @apply inline-flex h-10 items-center justify-center rounded-lg border border-sky-300 bg-white px-3 text-sm font-medium text-sky-600 transition hover:bg-sky-50;
+        @apply inline-flex h-8 items-center justify-center rounded-md border border-sky-300 bg-white px-2.5 text-xs font-medium text-sky-600 transition hover:bg-sky-50 sm:h-9 sm:px-3 sm:text-sm;
+    }
+
+    .private-action-link.icon-action,
+    .private-text-button.icon-action,
+    .private-icon-button {
+        @apply justify-center items-center text-center leading-none;
+    }
+
+    .private-action-link.icon-action,
+    .private-text-button.icon-action {
+        @apply h-8 w-8 gap-0 px-0 py-0 sm:h-9 sm:w-9;
+    }
+
+    .private-action-link.icon-action > svg,
+    .private-text-button.icon-action > svg,
+    .private-icon-button > svg {
+        @apply block h-4 w-4 shrink-0;
+    }
+
+    .icon-action {
+        @apply h-8 w-8 shrink-0 px-0 py-0 leading-none;
+    }
+
+    .icon-action svg {
+        @apply block h-4 w-4 shrink-0;
+    }
+
+    .btn > svg,
+    .btn > span > svg {
+        @apply block shrink-0;
+    }
+
+    .btn-icon > span,
+    .icon-action > span {
+        @apply inline-flex h-full w-full items-center justify-center leading-none;
+    }
+
+    .tooltip-trigger {
+        @apply relative;
+    }
+
+    .tooltip-trigger::after {
+        content: none;
     }
 
     .private-toolbar {
-        @apply mb-5 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:flex-row lg:items-center lg:justify-between;
+        @apply mb-4 flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:mb-5 sm:rounded-xl sm:p-4 lg:flex-row lg:items-center lg:justify-between;
     }
 
     .private-search {
@@ -174,19 +245,19 @@
     }
 
     .private-table-shell {
-        @apply overflow-hidden rounded-2xl border border-slate-200;
+        @apply overflow-x-auto overflow-y-visible rounded-xl border border-slate-200;
     }
 
     .private-table {
-        @apply min-w-full divide-y divide-slate-200 bg-white text-sm text-slate-700;
+        @apply min-w-full divide-y divide-slate-200 bg-white text-[13px] text-slate-700 sm:text-sm;
     }
 
     .private-table thead {
-        @apply bg-slate-50 text-xs uppercase tracking-[0.16em] text-slate-500;
+        @apply bg-slate-50 text-[10px] uppercase tracking-[0.14em] text-slate-500 sm:text-xs sm:tracking-[0.16em];
     }
 
     .private-table th {
-        @apply px-4 py-3 text-left font-semibold;
+        @apply px-2.5 py-2 text-left font-semibold sm:px-3 sm:py-2.5;
     }
 
     .private-table-sort {
@@ -194,7 +265,7 @@
     }
 
     .private-table td {
-        @apply px-4 py-4 align-top;
+        @apply px-2.5 py-2.5 align-top sm:px-3 sm:py-3;
     }
 
     .private-table tbody tr {
@@ -210,7 +281,7 @@
     }
 
     .private-table-actions {
-        @apply flex flex-wrap justify-end gap-2;
+        @apply flex flex-wrap justify-end gap-1.5;
     }
 
     .private-role-badge {
@@ -298,11 +369,11 @@
     }
 
     .private-role-list {
-        @apply flex flex-wrap gap-2;
+        @apply flex flex-wrap gap-1.5;
     }
 
     .private-form-grid {
-        @apply grid gap-5 lg:grid-cols-2;
+        @apply grid gap-4 sm:gap-5 lg:grid-cols-2;
     }
 
     .private-field {
@@ -326,7 +397,7 @@
     }
 
     .private-checkbox-card {
-        @apply flex gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700;
+        @apply flex gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700 sm:px-4;
     }
 
     .private-checkbox-card input {
@@ -342,7 +413,7 @@
     }
 
     .private-form-actions {
-        @apply flex flex-wrap items-center justify-end gap-3 border-t border-slate-200 pt-5;
+        @apply flex flex-wrap items-center justify-end gap-2.5 border-t border-slate-200 pt-4 sm:gap-3 sm:pt-5;
     }
 
     .private-helper-text {
@@ -350,7 +421,7 @@
     }
 
     .private-image-preview {
-        @apply mt-4 h-40 w-full rounded-2xl border border-slate-200 object-cover shadow-sm;
+        @apply mt-4 h-40 w-full rounded-xl border border-slate-200 object-cover shadow-sm;
     }
 
     .private-image-preview--logo {
@@ -358,7 +429,7 @@
     }
 
     .institution-settings-hero {
-        @apply overflow-hidden rounded-[28px] border border-sky-100 bg-[linear-gradient(135deg,rgba(14,165,233,0.12),rgba(255,255,255,0.96)_42%,rgba(15,23,42,0.04))] px-6 py-6 shadow-[0_24px_70px_-45px_rgba(14,165,233,0.55)] lg:flex lg:items-end lg:justify-between lg:px-8;
+        @apply overflow-hidden rounded-xl border border-sky-100 bg-[linear-gradient(135deg,rgba(14,165,233,0.12),rgba(255,255,255,0.96)_42%,rgba(15,23,42,0.04))] px-4 py-5 shadow-[0_24px_70px_-45px_rgba(14,165,233,0.55)] sm:rounded-2xl sm:px-6 sm:py-6 lg:flex lg:items-end lg:justify-between lg:px-8;
     }
 
     .institution-settings-kicker {
@@ -366,7 +437,7 @@
     }
 
     .institution-settings-title {
-        @apply mt-3 text-3xl font-semibold tracking-tight text-slate-900;
+        @apply mt-3 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl;
     }
 
     .institution-settings-copy {
@@ -374,11 +445,11 @@
     }
 
     .institution-settings-hero-grid {
-        @apply mt-6 grid gap-3 sm:grid-cols-2 lg:mt-0 lg:min-w-[320px];
+        @apply mt-5 grid gap-3 sm:mt-6 sm:grid-cols-2 lg:mt-0 lg:min-w-[320px];
     }
 
     .institution-settings-stat {
-        @apply rounded-2xl border border-white/80 bg-white/80 px-4 py-4 backdrop-blur-sm;
+        @apply rounded-lg border border-white/80 bg-white/80 px-3 py-3 backdrop-blur-sm sm:px-4 sm:py-4;
     }
 
     .institution-settings-stat-label {
@@ -390,7 +461,7 @@
     }
 
     .institution-settings-section {
-        @apply space-y-5 rounded-[24px] border border-slate-200 bg-slate-50/70 p-5;
+        @apply space-y-4 rounded-xl border border-slate-200 bg-slate-50/70 p-4 sm:space-y-5 sm:rounded-2xl sm:p-5;
     }
 
     .institution-settings-section-head {
@@ -406,11 +477,11 @@
     }
 
     .institution-upload-grid {
-        @apply grid gap-5 xl:grid-cols-2;
+        @apply grid gap-4 sm:gap-5 xl:grid-cols-2;
     }
 
     .institution-upload-card {
-        @apply space-y-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm;
+        @apply space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:space-y-5 sm:rounded-2xl sm:p-5;
     }
 
     .institution-upload-meta {
@@ -430,7 +501,7 @@
     }
 
     .institution-upload-preview-shell {
-        @apply rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-3;
+        @apply rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 sm:rounded-2xl;
     }
 
     .institution-upload-preview-shell--logo {
@@ -438,19 +509,19 @@
     }
 
     .institution-upload-empty {
-        @apply flex min-h-44 items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-5 text-center text-sm leading-6 text-slate-500;
+        @apply flex min-h-44 items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 text-center text-sm leading-6 text-slate-500;
     }
 
     .permission-matrix {
-        @apply space-y-4;
+        @apply space-y-3 sm:space-y-4;
     }
 
     .permission-matrix-intro {
-        @apply mb-4 rounded-xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-700;
+        @apply mb-4 rounded-lg border border-sky-100 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-700;
     }
 
     .permission-matrix-section {
-        @apply rounded-2xl border border-slate-200 bg-slate-50 p-4;
+        @apply rounded-lg border border-slate-200 bg-slate-50 p-3 sm:rounded-xl sm:p-4;
     }
 
     .permission-matrix-head {
@@ -470,11 +541,11 @@
     }
 
     .permission-matrix-toggle {
-        @apply inline-flex items-center justify-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-sky-700 transition hover:bg-sky-100;
+        @apply inline-flex items-center justify-center rounded-full border border-sky-200 bg-sky-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-700 transition hover:bg-sky-100 sm:px-2.5 sm:py-1.5 sm:text-[11px];
     }
 
     .permission-matrix-card {
-        @apply flex gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700;
+        @apply flex gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700 sm:px-4;
     }
 
     .permission-matrix-card input {
@@ -490,7 +561,7 @@
     }
 
     .changelog-form-section {
-        @apply space-y-5 rounded-[24px] border border-slate-200 bg-slate-50/80 p-5;
+        @apply space-y-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4 sm:space-y-5 sm:rounded-2xl sm:p-5;
     }
 
     .changelog-form-section-head {
@@ -514,7 +585,7 @@
     }
 
     .changelog-form-meta-grid {
-        @apply grid gap-5 xl:grid-cols-3;
+        @apply grid gap-4 sm:gap-5 xl:grid-cols-3;
     }
 
     .work-progress-meter {
@@ -534,7 +605,7 @@
     }
 
     .work-progress-form-preview {
-        @apply flex flex-col justify-center rounded-2xl border border-sky-100 bg-sky-50 px-4 py-4;
+        @apply flex flex-col justify-center rounded-xl border border-sky-100 bg-sky-50 px-4 py-4;
     }
 
     .work-progress-form-preview-label {
@@ -550,7 +621,7 @@
     }
 
     .dashboard-progress-card {
-        @apply rounded-2xl border border-slate-200 bg-slate-50/80 p-4;
+        @apply rounded-xl border border-slate-200 bg-slate-50/80 p-4;
     }
 
     .dashboard-progress-card--empty {
@@ -602,7 +673,7 @@
     }
 
     .activity-log-detail-card {
-        @apply flex flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4;
+        @apply flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-4;
     }
 
     .activity-log-detail-label {
@@ -614,7 +685,7 @@
     }
 
     .activity-log-detail-panel {
-        @apply mt-5 rounded-2xl border border-slate-200 bg-white px-5 py-5;
+        @apply mt-5 rounded-xl border border-slate-200 bg-white px-5 py-5;
     }
 
     .activity-log-detail-heading {
@@ -638,7 +709,7 @@
     }
 
     .error-log-trace {
-        @apply mt-3 overflow-x-auto rounded-2xl border border-slate-200 bg-slate-950 px-4 py-4 text-xs leading-6 text-slate-100;
+        @apply mt-3 overflow-x-auto rounded-xl border border-slate-200 bg-slate-950 px-4 py-4 text-xs leading-6 text-slate-100;
     }
 
     .permission-library-code {
@@ -646,7 +717,7 @@
     }
 
     .rich-editor {
-        @apply overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm;
+        @apply overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm;
     }
 
     .rich-editor__toolbar {
@@ -654,7 +725,7 @@
     }
 
     .rich-editor__tool {
-        @apply inline-flex min-w-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-sky-300 hover:text-sky-700;
+        @apply inline-flex min-w-8 items-center justify-center rounded-md border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-600 transition hover:border-sky-300 hover:text-sky-700 sm:min-w-10 sm:px-3 sm:py-2 sm:text-sm;
     }
 
     .rich-editor__surface {
@@ -679,19 +750,19 @@
     }
 
     .dashboard-hero {
-        @apply overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/90 shadow-[0_24px_80px_-40px_rgba(15,23,42,0.45)] backdrop-blur;
+        @apply overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 shadow-[0_24px_80px_-40px_rgba(15,23,42,0.45)] backdrop-blur;
     }
 
     .dashboard-page {
-        @apply min-h-screen px-4 py-6 sm:px-6 lg:px-8;
+        @apply min-h-screen px-3 py-4 sm:px-6 sm:py-6 lg:px-8;
     }
 
     .dashboard-page-inner {
-        @apply mx-auto max-w-7xl space-y-6;
+        @apply mx-auto max-w-7xl space-y-4 sm:space-y-6;
     }
 
     .dashboard-hero-content {
-        @apply flex flex-col gap-6 px-6 py-7 lg:flex-row lg:items-start lg:justify-between lg:px-8;
+        @apply flex flex-col gap-5 px-4 py-5 sm:px-6 sm:py-7 lg:flex-row lg:items-start lg:justify-between lg:px-8;
     }
 
     .dashboard-kicker {
@@ -699,7 +770,7 @@
     }
 
     .dashboard-title {
-        @apply mt-3 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl;
+        @apply mt-3 text-2xl font-semibold tracking-tight text-slate-900 sm:text-4xl;
     }
 
     .dashboard-summary {
@@ -711,7 +782,7 @@
     }
 
     .dashboard-date-card {
-        @apply rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-right;
+        @apply rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-right;
     }
 
     .dashboard-date-label {
@@ -723,11 +794,11 @@
     }
 
     .dashboard-grid {
-        @apply grid gap-6 xl:grid-cols-[0.88fr_2.12fr];
+        @apply grid gap-4 sm:gap-6 xl:grid-cols-[0.88fr_2.12fr];
     }
 
     .dashboard-stack {
-        @apply space-y-6;
+        @apply space-y-4 sm:space-y-6;
     }
 
     .dashboard-profile {
@@ -735,11 +806,11 @@
     }
 
     .dashboard-profile-icon {
-        @apply flex h-18 w-18 items-center justify-center rounded-3xl bg-sky-100 text-sky-700;
+        @apply flex h-16 w-16 items-center justify-center rounded-xl bg-sky-100 text-sky-700 sm:h-18 sm:w-18 sm:rounded-2xl;
     }
 
     .dashboard-profile-title {
-        @apply mt-4 text-xl font-semibold text-slate-900;
+        @apply mt-4 text-lg font-semibold text-slate-900 sm:text-xl;
     }
 
     .dashboard-profile-copy {
@@ -755,7 +826,7 @@
     }
 
     .dashboard-stats-grid {
-        @apply mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2;
+        @apply mt-5 grid gap-3 sm:mt-6 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2;
     }
 
     .dashboard-section-head {
@@ -767,7 +838,7 @@
     }
 
     .dashboard-section-title {
-        @apply mt-2 text-xl font-semibold text-slate-900;
+        @apply mt-2 text-lg font-semibold text-slate-900 sm:text-xl;
     }
 
     .dashboard-release-badge {
@@ -787,7 +858,7 @@
     }
 
     .dashboard-access-title {
-        @apply mt-2 text-2xl font-semibold text-slate-900;
+        @apply mt-2 text-xl font-semibold text-slate-900 sm:text-2xl;
     }
 
     .dashboard-access-copy {
@@ -799,11 +870,11 @@
     }
 
     .dashboard-modules-grid {
-        @apply grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4;
+        @apply grid gap-4 sm:gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4;
     }
 
     .dashboard-surface {
-        @apply rounded-[26px] border border-slate-200/80 bg-white/95 p-6 shadow-[0_24px_80px_-40px_rgba(15,23,42,0.4)];
+        @apply rounded-xl border border-slate-200/80 bg-white/95 p-4 shadow-[0_24px_80px_-40px_rgba(15,23,42,0.4)] sm:rounded-2xl sm:p-6;
     }
 
     .dashboard-tag {
@@ -811,7 +882,7 @@
     }
 
     .dashboard-stat {
-        @apply rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3;
+        @apply rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 sm:px-4;
     }
 
     .dashboard-stat-label {
@@ -823,11 +894,11 @@
     }
 
     .dashboard-note {
-        @apply flex gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600;
+        @apply flex gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm leading-6 text-slate-600 sm:px-4;
     }
 
     .dashboard-module-card {
-        @apply relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50/80 p-5 transition duration-200;
+        @apply relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50/80 p-4 transition duration-200 sm:rounded-2xl sm:p-5;
     }
 
     .dashboard-module-card--link {
@@ -844,7 +915,7 @@
     }
 
     .dashboard-module-icon {
-        @apply flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-500 text-white shadow-lg shadow-sky-500/20;
+        @apply flex h-12 w-12 items-center justify-center rounded-xl bg-sky-500 text-white shadow-lg shadow-sky-500/20 sm:h-14 sm:w-14;
     }
 
     .dashboard-module-status {
@@ -860,15 +931,15 @@
     }
 
     .workspace-sidebar-card {
-        @apply rounded-[28px] border border-white/10 bg-white/3 px-4 py-5 text-center;
+        @apply rounded-xl border border-white/10 bg-white/3 px-4 py-4 text-center sm:rounded-2xl sm:py-5;
     }
 
     .workspace-sidebar-avatar {
-        @apply mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-sky-300/60 bg-sky-400/15 text-xl font-semibold text-sky-100;
+        @apply mx-auto flex h-14 w-14 items-center justify-center rounded-full border-2 border-sky-300/60 bg-sky-400/15 text-lg font-semibold text-sky-100 sm:h-16 sm:w-16 sm:text-xl;
     }
 
     .workspace-sidebar-body {
-        @apply flex h-full flex-col px-5 py-6;
+        @apply flex h-full flex-col px-4 py-4 sm:px-5 sm:py-6;
     }
 
     .workspace-user-name {
@@ -884,7 +955,7 @@
     }
 
     .workspace-nav {
-        @apply mt-6 space-y-2;
+        @apply mt-5 space-y-2 sm:mt-6;
     }
 
     .workspace-nav-group {
@@ -892,7 +963,7 @@
     }
 
     .workspace-nav-label {
-        @apply flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-white/75;
+        @apply flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/75 sm:px-4 sm:py-3;
     }
 
     .workspace-nav-label-text {
@@ -908,7 +979,7 @@
     }
 
     .workspace-nav-link {
-        @apply flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition;
+        @apply flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition sm:px-4 sm:py-3;
     }
 
     .workspace-nav-link--active {
@@ -920,11 +991,11 @@
     }
 
     .workspace-subnav {
-        @apply ml-5 space-y-1 border-l border-white/10 pl-4;
+        @apply ml-4 space-y-1 border-l border-white/10 pl-3 sm:ml-5 sm:pl-4;
     }
 
     .workspace-subnav-link {
-        @apply block rounded-lg px-3 py-2 text-sm transition;
+        @apply block rounded-md px-3 py-1.5 text-sm transition sm:py-2;
     }
 
     .workspace-subnav-link--active {
@@ -936,11 +1007,11 @@
     }
 
     .workspace-main {
-        @apply min-w-0 flex-1 px-5 py-6 sm:px-8 lg:px-10;
+        @apply min-w-0 flex-1 px-4 py-4 sm:px-8 sm:py-6 lg:px-10;
     }
 
     .workspace-tile {
-        @apply block rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 transition;
+        @apply block rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 transition sm:px-4 sm:py-4;
     }
 
     .workspace-tile--link {
@@ -952,7 +1023,7 @@
     }
 
     .workspace-tile-title {
-        @apply text-base font-semibold text-slate-900;
+        @apply text-sm font-semibold text-slate-900 sm:text-base;
     }
 
     .workspace-tile-icon {
@@ -961,5 +1032,137 @@
 
     .workspace-tile-copy {
         @apply mt-3 text-sm leading-6 text-slate-600;
+    }
+}
+
+@media (min-width: 1024px) and (max-height: 820px) {
+    @layer components {
+        .private-page {
+            @apply space-y-5;
+        }
+
+        .private-panel {
+            @apply p-4;
+        }
+
+        .private-toolbar {
+            @apply mb-4 p-3;
+        }
+
+        .private-form-grid {
+            @apply gap-4;
+        }
+
+        .private-form-actions {
+            @apply gap-2.5 pt-4;
+        }
+
+        .institution-settings-hero {
+            @apply px-6 py-5;
+        }
+
+        .institution-settings-hero-grid {
+            @apply mt-5 gap-2.5;
+        }
+
+        .institution-settings-section {
+            @apply space-y-4 p-4;
+        }
+
+        .institution-upload-grid {
+            @apply gap-4;
+        }
+
+        .institution-upload-card {
+            @apply space-y-4 p-4;
+        }
+
+        .permission-matrix {
+            @apply space-y-3;
+        }
+
+        .permission-matrix-section {
+            @apply p-3;
+        }
+
+        .changelog-form-section {
+            @apply space-y-4 p-4;
+        }
+
+        .changelog-form-meta-grid {
+            @apply gap-4;
+        }
+
+        .dashboard-page {
+            @apply px-5 py-5;
+        }
+
+        .dashboard-page-inner {
+            @apply space-y-5;
+        }
+
+        .dashboard-hero-content {
+            @apply gap-5 px-6 py-5;
+        }
+
+        .dashboard-title {
+            @apply text-3xl;
+        }
+
+        .dashboard-summary {
+            @apply text-sm;
+        }
+
+        .dashboard-grid {
+            @apply gap-5;
+        }
+
+        .dashboard-stack {
+            @apply space-y-5;
+        }
+
+        .dashboard-stats-grid {
+            @apply mt-5;
+        }
+
+        .dashboard-section-title {
+            @apply text-lg;
+        }
+
+        .dashboard-access-title {
+            @apply text-xl;
+        }
+
+        .dashboard-modules-grid {
+            @apply gap-4;
+        }
+
+        .dashboard-surface {
+            @apply p-5;
+        }
+
+        .dashboard-module-card {
+            @apply p-4;
+        }
+
+        .workspace-sidebar-body {
+            @apply px-4 py-5;
+        }
+
+        .workspace-nav {
+            @apply mt-5;
+        }
+
+        .workspace-nav-label {
+            @apply px-3 py-2.5;
+        }
+
+        .workspace-nav-link {
+            @apply px-3 py-2.5;
+        }
+
+        .workspace-main {
+            @apply px-6 py-5;
+        }
     }
 }

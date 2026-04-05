@@ -1,12 +1,12 @@
 <x-layouts.private-module :title="$title" :description="$description">
     <div class="private-page">
         <x-private.page-header
-            :title="$isEdit ? 'Edit Access Rule' : 'Create Access Rule'"
-            :subtitle="$isEdit ? 'Perbarui aturan akses custom untuk kebutuhan khusus.' : 'Buat aturan akses custom hanya jika checklist bawaan di form role atau user belum mencukupi.'"
+            :title="$isEdit ? 'Ubah Aturan Akses' : 'Tambah Aturan Akses'"
+            :subtitle="$isEdit ? 'Perbarui aturan akses kustom untuk kebutuhan khusus.' : 'Buat aturan akses kustom hanya jika checklist bawaan di form role atau pengguna belum mencukupi.'"
         >
             <x-slot:actions>
-                <a href="{{ route('settings.permissions.index') }}" class="private-action-link">
-                    <span>Back to permissions</span>
+                <a href="{{ route('settings.permissions.index') }}" class="private-action-link icon-action tooltip-trigger" aria-label="Kembali ke akses" title="Kembali ke akses">
+                    <x-ui.icon name="arrow-left" class="h-4 w-4" />
                 </a>
             </x-slot:actions>
         </x-private.page-header>
@@ -16,11 +16,11 @@
         @endif
 
         <x-private.panel
-            :title="$isEdit ? 'Custom Access Form' : 'New Custom Access'"
-            description="Untuk kebutuhan umum seperti lihat, tambah, ubah, atau hapus data, lebih mudah memakai checklist akses di form role atau user."
+            :title="$isEdit ? 'Form Akses Kustom' : 'Akses Kustom Baru'"
+            description="Untuk kebutuhan umum seperti lihat, tambah, ubah, atau hapus data, lebih mudah memakai checklist akses di form role atau pengguna."
         >
             <div class="private-panel-soft mb-5">
-                Alur yang disarankan: atur hak akses dari form role atau user. Halaman ini hanya untuk akses tambahan yang belum tersedia di pustaka standar.
+                Alur yang disarankan: atur hak akses dari form role atau pengguna. Halaman ini hanya untuk akses tambahan yang belum tersedia di pustaka standar.
             </div>
 
             <form
@@ -33,7 +33,7 @@
                     @method('PUT')
                 @endif
 
-                <x-form.field for="name" label="Access Key" :error="$errors->first('name')">
+                <x-form.field for="name" label="Kunci Akses" :error="$errors->first('name')">
                     <x-form.input
                         id="name"
                         name="name"
@@ -47,7 +47,7 @@
                     <p class="private-helper-text">Gunakan format sederhana seperti `approve_expense_reports` agar mudah dikenali oleh developer dan administrator.</p>
                 </x-form.field>
 
-                <x-form.field for="guard_name" label="Application Scope" :error="$errors->first('guard_name')">
+                <x-form.field for="guard_name" label="Cakupan Aplikasi" :error="$errors->first('guard_name')">
                     <x-form.input
                         id="guard_name"
                         name="guard_name"
@@ -61,17 +61,15 @@
 
                 @if ($isProtected)
                     <div class="private-panel-soft private-field-span-2">
-                        Akses bawaan sistem tidak dapat diubah dari sini. Jika membutuhkan kemampuan tambahan, buat access rule baru.
+                        Akses bawaan sistem tidak dapat diubah dari sini. Jika membutuhkan kemampuan tambahan, buat aturan akses baru.
                     </div>
                 @endif
 
                 <div class="private-form-actions private-field-span-2">
-                    <a href="{{ route('settings.permissions.index') }}" class="private-action-link">Cancel</a>
+                    <x-ui.cancel-link :href="route('settings.permissions.index')" />
 
                     @if (! $isProtected)
-                        <x-ui.button type="submit" variant="primary" :block="false">
-                            {{ $isEdit ? 'Save Changes' : 'Create Permission' }}
-                        </x-ui.button>
+                        <x-ui.save-button :label="$isEdit ? 'Simpan perubahan' : 'Simpan akses'" />
                     @endif
                 </div>
             </form>

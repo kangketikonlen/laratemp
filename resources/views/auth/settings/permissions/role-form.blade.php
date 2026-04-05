@@ -1,12 +1,12 @@
 <x-layouts.private-module :title="$title" :description="$description">
     <div class="private-page">
         <x-private.page-header
-            title="Manage Role Access"
+            title="Kelola Akses Role"
             subtitle="Atur halaman dan aksi apa saja yang bisa dipakai oleh role ini."
         >
             <x-slot:actions>
-                <a href="{{ route('settings.permissions.index') }}" class="private-action-link">
-                    <span>Back to role access</span>
+                <a href="{{ route('settings.permissions.index') }}" class="private-action-link icon-action tooltip-trigger" aria-label="Kembali ke akses role" title="Kembali ke akses role">
+                    <x-ui.icon name="arrow-left" class="h-4 w-4" />
                 </a>
             </x-slot:actions>
         </x-private.page-header>
@@ -21,27 +21,27 @@
 
         <section class="institution-settings-hero">
             <div>
-                <p class="institution-settings-kicker">Role Access</p>
+                <p class="institution-settings-kicker">Akses Role</p>
                 <h2 class="institution-settings-title">{{ $role->display_name ?: $role->name }}</h2>
                 <p class="institution-settings-copy">
-                    Centang akses yang boleh digunakan oleh role ini. Perubahan akan langsung memengaruhi semua user yang memakai role tersebut.
+                    Centang akses yang boleh digunakan oleh role ini. Perubahan akan langsung memengaruhi semua pengguna yang memakai role tersebut.
                 </p>
             </div>
 
             <div class="institution-settings-hero-grid">
                 <div class="institution-settings-stat">
-                    <span class="institution-settings-stat-label">Role Name</span>
+                    <span class="institution-settings-stat-label">Nama Role</span>
                     <span class="institution-settings-stat-value">{{ $role->name }}</span>
                 </div>
                 <div class="institution-settings-stat">
-                    <span class="institution-settings-stat-label">Current Access</span>
-                    <span class="institution-settings-stat-value">{{ $role->permissions->count() }} actions</span>
+                    <span class="institution-settings-stat-label">Akses Saat Ini</span>
+                    <span class="institution-settings-stat-value">{{ $role->permissions->count() }} aksi</span>
                 </div>
             </div>
         </section>
 
         <x-private.panel
-            title="Access Checklist"
+            title="Checklist Akses"
             description="Pilih akses seperlunya agar role tetap aman dan mudah dipahami."
         >
             <form method="POST" action="{{ route('settings.permissions.roles.update', $role) }}" class="space-y-6">
@@ -56,11 +56,9 @@
                 />
 
                 <div class="private-form-actions">
-                    <a href="{{ route('settings.permissions.index') }}" class="private-action-link">Cancel</a>
+                    <x-ui.cancel-link :href="route('settings.permissions.index')" />
 
-                    <x-ui.button type="submit" variant="primary" :block="false">
-                        Save Role Access
-                    </x-ui.button>
+                    <x-ui.save-button label="Simpan akses role" />
                 </div>
             </form>
         </x-private.panel>

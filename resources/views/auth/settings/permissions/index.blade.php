@@ -10,26 +10,15 @@
             ]);
         };
 
-        $sortIcon = function (string $column) use ($sort, $direction) {
-            if ($sort !== $column) {
-                return '<>';
-            }
-
-            return $direction === 'asc' ? '^' : 'v';
-        };
     @endphp
 
     <div class="private-page">
-        <x-private.page-header title="Role Access" subtitle="Pilih role yang ingin diatur, lalu buka checklist aksesnya.">
+        <x-private.page-header title="Akses Role" subtitle="Pilih role yang ingin diatur, lalu buka checklist aksesnya.">
             <x-slot:actions>
-                <a href="{{ route('dashboard') }}" class="private-action-link">
-                    <span>Back to dashboard</span>
-                </a>
+                <x-ui.back-dashboard-link />
 
                 @can('manage settings')
-                    <a href="{{ route('settings.permissions.create') }}" class="private-text-button">
-                        <span>Add Custom Access</span>
-                    </a>
+                    <x-ui.add-link :href="route('settings.permissions.create')" label="Tambah akses kustom" />
                 @endcan
             </x-slot:actions>
         </x-private.page-header>
@@ -44,8 +33,8 @@
 
         <section class="institution-settings-hero">
             <div>
-                <p class="institution-settings-kicker">Access Flow</p>
-                <h2 class="institution-settings-title">Start With Roles, Then Manage Their Access</h2>
+                <p class="institution-settings-kicker">Alur Akses</p>
+                <h2 class="institution-settings-title">Mulai dari Role, Lalu Kelola Aksesnya</h2>
                 <p class="institution-settings-copy">
                     Halaman ini menampilkan semua role yang ada di sistem. Buka salah satu role untuk mencentang akses yang boleh mereka gunakan.
                 </p>
@@ -53,47 +42,36 @@
 
             <div class="institution-settings-hero-grid">
                 <div class="institution-settings-stat">
-                    <span class="institution-settings-stat-label">System Access</span>
-                    <span class="institution-settings-stat-value">{{ $catalogPermissionsCount }} standard actions</span>
+                    <span class="institution-settings-stat-label">Akses Sistem</span>
+                    <span class="institution-settings-stat-value">{{ $catalogPermissionsCount }} aksi standar</span>
                 </div>
                 <div class="institution-settings-stat">
-                    <span class="institution-settings-stat-label">Available Roles</span>
-                    <span class="institution-settings-stat-value">{{ $roles->total() }} roles</span>
+                    <span class="institution-settings-stat-label">Role Tersedia</span>
+                    <span class="institution-settings-stat-value">{{ $roles->total() }} role</span>
                 </div>
             </div>
         </section>
 
         @can('manage settings')
-            <x-private.notice
-                title="Advanced Access Tools"
-                message="Custom access rules hanya ditampilkan untuk administrator tingkat lanjut. Admin biasa cukup memakai flow Manage Access pada role atau user."
-            />
+            <x-private.notice title="Alat Akses Lanjutan" message="Aturan akses kustom hanya ditampilkan untuk administrator tingkat lanjut. Admin biasa cukup memakai alur kelola akses pada role atau pengguna." />
         @endcan
 
-        <x-private.panel
-            title="Role Access Directory"
-            description="Kelola akses berdasarkan role agar pengaturan user tetap rapi dan konsisten."
-            :badge="$roles->total().' records'"
-        >
+        <x-private.panel title="Daftar Akses Role" description="Kelola akses berdasarkan role agar pengaturan pengguna tetap rapi dan konsisten." :badge="$roles->total().' data'">
             <form method="GET" action="{{ route('settings.permissions.index') }}" class="private-toolbar">
                 <div class="private-search">
-                    <x-form.input
-                        name="search"
-                        :value="$search"
-                        icon="settings"
-                        placeholder="Cari role, display name, atau deskripsi..."
-                        autocomplete="off"
-                    />
+                    <x-form.input name="search" :value="$search" icon="settings" placeholder="Cari role, display name, atau deskripsi..." autocomplete="off" />
 
                     <input type="hidden" name="sort" value="{{ $sort }}">
                     <input type="hidden" name="direction" value="{{ $direction }}">
                 </div>
 
                 <div class="private-inline-actions">
-                    <x-ui.button type="submit" variant="secondary" :block="false">Search</x-ui.button>
+                    <x-ui.search-button />
 
                     @if (filled($search))
-                        <a href="{{ route('settings.permissions.index') }}" class="private-action-link">Reset</a>
+                        <a href="{{ route('settings.permissions.index') }}" class="private-action-link icon-action tooltip-trigger" aria-label="Atur ulang filter" title="Atur ulang filter">
+                            <x-ui.icon name="rotate" class="h-4 w-4" />
+                        </a>
                     @endif
                 </div>
             </form>
@@ -103,36 +81,15 @@
                     Belum ada role yang cocok dengan filter saat ini. Tambahkan role baru atau ubah kata kunci pencarian.
                 </div>
             @else
-                <div class="private-table-shell">
-                    <table class="private-table">
+                <x-private.data-table>
                         <thead>
                             <tr>
-                                <th>
-                                    <a href="{{ $sortUrl('display_name') }}" class="private-table-sort">
-                                        <span>Role</span>
-                                        <span aria-hidden="true">{{ $sortIcon('display_name') }}</span>
-                                    </a>
-                                </th>
-                                <th>
-                                    <a href="{{ $sortUrl('name') }}" class="private-table-sort">
-                                        <span>System Name</span>
-                                        <span aria-hidden="true">{{ $sortIcon('name') }}</span>
-                                    </a>
-                                </th>
-                                <th>
-                                    <a href="{{ $sortUrl('permissions_count') }}" class="private-table-sort">
-                                        <span>Access</span>
-                                        <span aria-hidden="true">{{ $sortIcon('permissions_count') }}</span>
-                                    </a>
-                                </th>
-                                <th>
-                                    <a href="{{ $sortUrl('users_count') }}" class="private-table-sort">
-                                        <span>Users</span>
-                                        <span aria-hidden="true">{{ $sortIcon('users_count') }}</span>
-                                    </a>
-                                </th>
+                                <x-private.table-sort-heading :href="$sortUrl('display_name')" label="Role" :active="$sort === 'display_name'" :direction="$direction" />
+                                <x-private.table-sort-heading :href="$sortUrl('name')" label="Nama Sistem" :active="$sort === 'name'" :direction="$direction" />
+                                <x-private.table-sort-heading :href="$sortUrl('permissions_count')" label="Access" :active="$sort === 'permissions_count'" :direction="$direction" />
+                                <x-private.table-sort-heading :href="$sortUrl('users_count')" label="Pengguna" :active="$sort === 'users_count'" :direction="$direction" />
                                 <th>Status</th>
-                                <th class="text-right">Action</th>
+                                <th class="text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -154,33 +111,30 @@
                                     </td>
                                     <td>
                                         <span class="private-table-muted">
-                                            {{ number_format($managedRole->permissions_count) }} access rule(s)
+                                            {{ number_format($managedRole->permissions_count) }} aturan akses
                                         </span>
                                     </td>
                                     <td>
                                         <span class="private-table-muted">
-                                            {{ number_format($managedRole->users_count) }} user(s)
+                                            {{ number_format($managedRole->users_count) }} pengguna
                                         </span>
                                     </td>
                                     <td>
                                         @if ($managedRole->is_system)
-                                            <span class="private-role-badge">System</span>
+                                            <span class="private-role-badge">Sistem</span>
                                         @else
-                                            <span class="private-table-muted">Custom</span>
+                                            <span class="private-table-muted">Kustom</span>
                                         @endif
                                     </td>
                                     <td>
                                         <div class="private-table-actions">
-                                            <a href="{{ route('settings.permissions.roles.edit', $managedRole) }}" class="private-action-link">
-                                                Manage Access
-                                            </a>
+                                            <x-ui.manage-link :href="route('settings.permissions.roles.edit', $managedRole)" label="Kelola akses role" />
                                         </div>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
-                    </table>
-                </div>
+                </x-private.data-table>
 
                 <div class="mt-5">
                     {{ $roles->links() }}
@@ -188,25 +142,20 @@
             @endif
         </x-private.panel>
 
-        <x-private.panel
-            title="Direct User Access Directory"
-            description="Gunakan akses langsung per user hanya untuk kebutuhan khusus yang tidak cocok dikelola dari role."
-            :badge="$users->total().' records'"
-        >
+        <x-private.panel title="Daftar Akses Langsung Pengguna" description="Gunakan akses langsung per pengguna hanya untuk kebutuhan khusus yang tidak cocok dikelola dari role." :badge="$users->total().' data'">
             @if ($users->isEmpty())
                 <div class="private-panel-empty">
-                    Belum ada user yang cocok dengan filter saat ini.
+                    Belum ada pengguna yang cocok dengan filter saat ini.
                 </div>
             @else
-                <div class="private-table-shell">
-                    <table class="private-table">
+                <x-private.data-table>
                         <thead>
                             <tr>
-                                <th>User</th>
+                                <th>Pengguna</th>
                                 <th>Username</th>
                                 <th>Role</th>
-                                <th>Direct Access</th>
-                                <th class="text-right">Action</th>
+                                <th>Akses Langsung</th>
+                                <th class="text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -220,23 +169,20 @@
                                         <span class="private-table-muted">{{ '@'.$managedUser->username }}</span>
                                     </td>
                                     <td>
-                                        <span class="private-table-muted">{{ number_format($managedUser->roles_count) }} role(s)</span>
+                                        <span class="private-table-muted">{{ number_format($managedUser->roles_count) }} role</span>
                                     </td>
                                     <td>
-                                        <span class="private-table-muted">{{ number_format($managedUser->permissions_count) }} direct access rule(s)</span>
+                                        <span class="private-table-muted">{{ number_format($managedUser->permissions_count) }} aturan akses langsung</span>
                                     </td>
                                     <td>
                                         <div class="private-table-actions">
-                                            <a href="{{ route('settings.permissions.users.edit', $managedUser) }}" class="private-action-link">
-                                                Manage Direct Access
-                                            </a>
+                                            <x-ui.manage-link :href="route('settings.permissions.users.edit', $managedUser)" label="Kelola akses langsung" />
                                         </div>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
-                    </table>
-                </div>
+                </x-private.data-table>
 
                 <div class="mt-5">
                     {{ $users->links() }}

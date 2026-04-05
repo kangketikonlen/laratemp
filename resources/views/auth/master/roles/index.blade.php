@@ -10,25 +10,14 @@
             ]);
         };
 
-        $sortIcon = function (string $column) use ($sort, $direction) {
-            if ($sort !== $column) {
-                return '<>';
-            }
-
-            return $direction === 'asc' ? '^' : 'v';
-        };
     @endphp
 
     <div class="private-page">
-        <x-private.page-header :title="$title" subtitle="Master Data Management">
+        <x-private.page-header :title="$title" subtitle="Manajemen Data Master">
             <x-slot:actions>
-                <a href="{{ route('dashboard') }}" class="private-action-link">
-                    <span>Back to dashboard</span>
-                </a>
+                <x-ui.back-dashboard-link />
 
-                <a href="{{ route('master.roles.create') }}" class="private-text-button">
-                    <span>Add Role</span>
-                </a>
+                <x-ui.add-link :href="route('master.roles.create')" label="Tambah role" />
             </x-slot:actions>
         </x-private.page-header>
 
@@ -42,8 +31,8 @@
 
         <x-private.panel
             title="Daftar Role"
-            description="Kelola role aplikasi, nama tampilan, dan akses module dari satu workspace."
-            :badge="$roles->total().' records'"
+            description="Kelola role aplikasi, nama tampilan, dan akses modul dari satu ruang kerja."
+            :badge="$roles->total().' data'"
         >
             <form method="GET" action="{{ route('master.roles.index') }}" class="private-toolbar">
                 <div class="private-search">
@@ -60,10 +49,12 @@
                 </div>
 
                 <div class="private-inline-actions">
-                    <x-ui.button type="submit" variant="secondary" :block="false">Search</x-ui.button>
+                    <x-ui.search-button />
 
                     @if (filled($search))
-                        <a href="{{ route('master.roles.index') }}" class="private-action-link">Reset</a>
+                        <a href="{{ route('master.roles.index') }}" class="private-action-link icon-action tooltip-trigger" aria-label="Atur ulang filter" title="Atur ulang filter">
+                            <x-ui.icon name="rotate" class="h-4 w-4" />
+                        </a>
                     @endif
                 </div>
             </form>
@@ -73,36 +64,15 @@
                     Belum ada role yang cocok dengan filter saat ini. Tambahkan role baru atau ubah kata kunci pencarian.
                 </div>
             @else
-                <div class="private-table-shell">
-                    <table class="private-table">
+                <x-private.data-table>
                         <thead>
                             <tr>
-                                <th>
-                                    <a href="{{ $sortUrl('display_name') }}" class="private-table-sort">
-                                        <span>Role</span>
-                                        <span aria-hidden="true">{{ $sortIcon('display_name') }}</span>
-                                    </a>
-                                </th>
-                                <th>
-                                    <a href="{{ $sortUrl('name') }}" class="private-table-sort">
-                                        <span>Name</span>
-                                        <span aria-hidden="true">{{ $sortIcon('name') }}</span>
-                                    </a>
-                                </th>
-                                <th>Modules</th>
-                                <th>
-                                    <a href="{{ $sortUrl('users_count') }}" class="private-table-sort">
-                                        <span>Users</span>
-                                        <span aria-hidden="true">{{ $sortIcon('users_count') }}</span>
-                                    </a>
-                                </th>
-                                <th>
-                                    <a href="{{ $sortUrl('is_system') }}" class="private-table-sort">
-                                        <span>Status</span>
-                                        <span aria-hidden="true">{{ $sortIcon('is_system') }}</span>
-                                    </a>
-                                </th>
-                                <th class="text-right">Action</th>
+                                <x-private.table-sort-heading :href="$sortUrl('display_name')" label="Role" :active="$sort === 'display_name'" :direction="$direction" />
+                                <x-private.table-sort-heading :href="$sortUrl('name')" label="Nama" :active="$sort === 'name'" :direction="$direction" />
+                                <th>Modul</th>
+                                <x-private.table-sort-heading :href="$sortUrl('users_count')" label="Pengguna" :active="$sort === 'users_count'" :direction="$direction" />
+                                <x-private.table-sort-heading :href="$sortUrl('is_system')" label="Status" :active="$sort === 'is_system'" :direction="$direction" />
+                                <th class="text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -127,49 +97,39 @@
                                             @forelse ($managedRole->modules as $module)
                                                 <span class="private-role-badge">{{ $module->name }}</span>
                                             @empty
-                                                <span class="private-table-muted">No module assigned</span>
+                                                <span class="private-table-muted">Belum ada modul</span>
                                             @endforelse
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="private-table-muted">{{ number_format($managedRole->users_count) }} user(s)</span>
+                                        <span class="private-table-muted">{{ number_format($managedRole->users_count) }} pengguna</span>
                                     </td>
                                     <td>
                                         @if ($managedRole->is_system)
-                                            <span class="private-role-badge">System</span>
+                                            <span class="private-role-badge">Sistem</span>
                                         @else
-                                            <span class="private-table-muted">Custom</span>
+                                            <span class="private-table-muted">Kustom</span>
                                         @endif
                                     </td>
                                     <td>
                                         <div class="private-table-actions">
                                             @if ($managedRole->is_system)
-                                                <span class="private-table-muted">Protected role</span>
+                                                <span class="private-table-muted">Role terlindungi</span>
                                             @else
-                                                <a href="{{ route('master.roles.edit', $managedRole) }}" class="private-action-link">
-                                                    Edit
-                                                </a>
+                                                <x-ui.edit-link :href="route('master.roles.edit', $managedRole)" label="Ubah role" />
 
-                                                <form
-                                                    method="POST"
-                                                    action="{{ route('master.roles.destroy', $managedRole) }}"
-                                                    onsubmit="return confirm('Delete role {{ $managedRole->name }}?')"
-                                                >
-                                                    @csrf
-                                                    @method('DELETE')
-
-                                                    <x-ui.button type="submit" variant="danger" :block="false">
-                                                        Delete
-                                                    </x-ui.button>
-                                                </form>
+                                                <x-ui.delete-button
+                                                    :action="route('master.roles.destroy', $managedRole)"
+                                                    label="Hapus role"
+                                                    confirm="Hapus role {{ $managedRole->name }}?"
+                                                />
                                             @endif
                                         </div>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
-                    </table>
-                </div>
+                </x-private.data-table>
 
                 <div class="mt-5">
                     {{ $roles->links() }}

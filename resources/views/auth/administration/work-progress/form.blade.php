@@ -1,12 +1,12 @@
 <x-layouts.private-module :title="$title" :description="$description">
     <div class="private-page">
         <x-private.page-header
-            :title="$isEdit ? 'Edit Work Progress' : 'Create Work Progress'"
+            :title="$isEdit ? 'Ubah Progres Kerja' : 'Tambah Progres Kerja'"
             :subtitle="$isEdit ? 'Perbarui status pekerjaan dan target penyelesaiannya.' : 'Tambahkan item pekerjaan baru untuk dipantau tim.'"
         >
             <x-slot:actions>
-                <a href="{{ route('administration.work-progress.index') }}" class="private-action-link">
-                    <span>Back to work progress</span>
+                <a href="{{ route('administration.work-progress.index') }}" class="private-action-link icon-action tooltip-trigger" aria-label="Kembali ke progres kerja" title="Kembali ke progres kerja">
+                    <x-ui.icon name="arrow-left" class="h-4 w-4" />
                 </a>
             </x-slot:actions>
         </x-private.page-header>
@@ -16,7 +16,7 @@
         @endif
 
         <x-private.panel
-            :title="$isEdit ? 'Form Edit Work Progress' : 'Form Create Work Progress'"
+            :title="$isEdit ? 'Form Ubah Progres Kerja' : 'Form Tambah Progres Kerja'"
             description="Atur item pekerjaan, pemilik, prioritas, progres, dan catatan update dalam satu form yang rapi."
         >
             <form
@@ -32,7 +32,7 @@
                 <section class="changelog-form-section">
                     <div class="changelog-form-section-head">
                         <div>
-                            <h3 class="changelog-form-section-title">Work Setup</h3>
+                            <h3 class="changelog-form-section-title">Pengaturan Pekerjaan</h3>
                             <p class="changelog-form-section-copy">
                                 Tentukan item pekerjaan, siapa yang menangani, prioritas, dan target dasarnya terlebih dahulu.
                             </p>
@@ -40,28 +40,28 @@
                     </div>
 
                     <div class="private-form-grid">
-                        <x-form.field for="title" label="Work Item" :error="$errors->first('title')" class="private-field-span-2">
+                        <x-form.field for="title" label="Item Pekerjaan" :error="$errors->first('title')" class="private-field-span-2">
                             <x-form.input
                                 id="title"
                                 name="title"
                                 icon="clipboard"
                                 :value="old('title', $item->title)"
-                                placeholder="Finalize release access checklist"
+                                placeholder="Finalisasi checklist akses rilis"
                                 required
                             />
                         </x-form.field>
 
-                        <x-form.field for="owner" label="Owner" :error="$errors->first('owner')">
+                        <x-form.field for="owner" label="Penanggung Jawab" :error="$errors->first('owner')">
                             <x-form.input
                                 id="owner"
                                 name="owner"
                                 icon="user"
                                 :value="old('owner', $item->owner)"
-                                placeholder="Team member or PIC"
+                                placeholder="Anggota tim atau PIC"
                             />
                         </x-form.field>
 
-                        <x-form.field for="target_date" label="Target Date" :error="$errors->first('target_date')">
+                        <x-form.field for="target_date" label="Tanggal Target" :error="$errors->first('target_date')">
                             <x-form.input
                                 id="target_date"
                                 name="target_date"
@@ -73,15 +73,15 @@
 
                         <x-form.field for="status" label="Status" :error="$errors->first('status')">
                             <select id="status" name="status" class="input-base" required>
-                                @foreach (['planned' => 'Planned', 'in_progress' => 'In Progress', 'done' => 'Done', 'blocked' => 'Blocked'] as $value => $label)
+                                @foreach (['planned' => 'Direncanakan', 'in_progress' => 'Berjalan', 'done' => 'Selesai', 'blocked' => 'Terhambat'] as $value => $label)
                                     <option value="{{ $value }}" @selected(old('status', $item->status ?: 'planned') === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
                         </x-form.field>
 
-                        <x-form.field for="priority" label="Priority" :error="$errors->first('priority')">
+                        <x-form.field for="priority" label="Prioritas" :error="$errors->first('priority')">
                             <select id="priority" name="priority" class="input-base" required>
-                                @foreach (['low' => 'Low', 'medium' => 'Medium', 'high' => 'High'] as $value => $label)
+                                @foreach (['low' => 'Rendah', 'medium' => 'Sedang', 'high' => 'Tinggi'] as $value => $label)
                                     <option value="{{ $value }}" @selected(old('priority', $item->priority ?: 'medium') === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
@@ -92,7 +92,7 @@
                 <section class="changelog-form-section">
                     <div class="changelog-form-section-head">
                         <div>
-                            <h3 class="changelog-form-section-title">Progress Update</h3>
+                            <h3 class="changelog-form-section-title">Pembaruan Progres</h3>
                             <p class="changelog-form-section-copy">
                                 Isi persentase progres dan catatan kerja terbaru agar tim mudah membaca kondisi terakhir.
                             </p>
@@ -100,7 +100,7 @@
                     </div>
 
                     <div class="private-form-grid">
-                        <x-form.field for="progress" label="Progress Percent" :error="$errors->first('progress')">
+                        <x-form.field for="progress" label="Persentase Progres" :error="$errors->first('progress')">
                             <x-form.input
                                 id="progress"
                                 name="progress"
@@ -112,17 +112,17 @@
                                 :value="old('progress', $item->progress ?? 0)"
                                 required
                             />
-                            <p class="private-helper-text">Gunakan angka 0 sampai 100 untuk menunjukkan progress pekerjaan.</p>
+                            <p class="private-helper-text">Gunakan angka 0 sampai 100 untuk menunjukkan progres pekerjaan.</p>
                         </x-form.field>
 
                         <div class="work-progress-form-preview">
-                            <span class="work-progress-form-preview-label">Quick Guide</span>
+                            <span class="work-progress-form-preview-label">Panduan Singkat</span>
                             <p class="work-progress-form-preview-copy">
-                                `Planned` untuk pekerjaan yang belum dimulai, `In Progress` untuk yang sedang berjalan, `Done` jika selesai, dan `Blocked` jika ada hambatan.
+                                `Direncanakan` untuk pekerjaan yang belum dimulai, `Berjalan` untuk yang sedang berjalan, `Selesai` jika tuntas, dan `Terhambat` jika ada kendala.
                             </p>
                         </div>
 
-                        <x-form.field for="notes" label="Progress Notes" :error="$errors->first('notes')" class="private-field-span-2">
+                        <x-form.field for="notes" label="Catatan Progres" :error="$errors->first('notes')" class="private-field-span-2">
                             <x-form.rich-editor
                                 id="notes"
                                 name="notes"
@@ -134,11 +134,9 @@
                 </section>
 
                 <div class="private-form-actions">
-                    <a href="{{ route('administration.work-progress.index') }}" class="private-action-link">Cancel</a>
+                    <x-ui.cancel-link :href="route('administration.work-progress.index')" />
 
-                    <x-ui.button type="submit" variant="primary" :block="false">
-                        {{ $isEdit ? 'Save Changes' : 'Create Progress' }}
-                    </x-ui.button>
+                    <x-ui.save-button :label="$isEdit ? 'Simpan perubahan' : 'Simpan progres'" />
                 </div>
             </form>
         </x-private.panel>

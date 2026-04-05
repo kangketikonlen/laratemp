@@ -1,5 +1,5 @@
 @props([
-    'badge' => 'Default',
+    'badge' => 'Bawaan',
     'description' => null,
     'error' => null,
     'helper' => null,
@@ -10,7 +10,7 @@
     'previewClass' => '',
     'previewUrl' => null,
     'title',
-    'emptyMessage' => 'No file uploaded yet.',
+    'emptyMessage' => 'Belum ada file yang diunggah.',
     'accept' => 'image/*',
     'logoPreview' => false,
 ])
