@@ -53,7 +53,7 @@ jobs:
           --health-retries=5
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -64,7 +64,7 @@ jobs:
           coverage: none
 
       - name: Cache composer dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ~/.composer/cache/files
           key: ${{ runner.os }}-php-8.4-composer-${{ hashFiles('composer.lock') }}
@@ -93,7 +93,7 @@ jobs:
       CURRENT_BRANCH: ${{ github.ref_name }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
