@@ -257,7 +257,7 @@
     }
 
     .private-table th {
-        @apply px-2.5 py-2 text-left font-semibold sm:px-3 sm:py-2.5;
+        @apply px-2.5 py-2 text-left align-middle font-semibold sm:px-3 sm:py-2.5;
     }
 
     .private-table-sort {
@@ -265,7 +265,7 @@
     }
 
     .private-table td {
-        @apply px-2.5 py-2.5 align-top sm:px-3 sm:py-3;
+        @apply px-2.5 py-2.5 align-middle sm:px-3 sm:py-3;
     }
 
     .private-table tbody tr {
