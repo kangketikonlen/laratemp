@@ -55,6 +55,15 @@
         </svg>
     @break
 
+    @case('menu')
+        <svg {{ $attributes->merge(['class' => 'w-5 h-5']) }} fill="none" stroke="currentColor" stroke-width="1.75"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 6.75h15" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 17.25h15" />
+        </svg>
+    @break
+
     @case('sliders')
         <svg {{ $attributes->merge(['class' => 'w-5 h-5']) }} fill="none" stroke="currentColor" stroke-width="1.5"
             viewBox="0 0 24 24">
@@ -223,6 +232,7 @@
         </svg>
     @break
 
+    @case('close')
     @case('x-mark')
         <svg {{ $attributes->merge(['class' => 'w-5 h-5']) }} fill="none" stroke="currentColor" stroke-width="1.5"
             viewBox="0 0 24 24">

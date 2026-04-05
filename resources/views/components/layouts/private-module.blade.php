@@ -22,6 +22,14 @@
         return false;
     };
 
+    $routeExactlyMatches = function (?string $routeName): bool {
+        if (blank($routeName) || !\Illuminate\Support\Facades\Route::has($routeName)) {
+            return false;
+        }
+
+        return request()->routeIs($routeName);
+    };
+
     $navbarItems = collect();
     $subnavbarItems = collect();
     $activeModule = null;
@@ -89,6 +97,8 @@
         'Administration' => 'clipboard',
         'Report' => 'chart',
     ];
+    $isOnActiveNavbarLanding =
+        $activeNavbar && $routeExactlyMatches($activeNavbar->route_name) && $subnavbarItems->isNotEmpty();
 @endphp
 
 <!DOCTYPE html>
@@ -105,8 +115,25 @@
 </head>
 
 <body class="min-h-screen bg-gray-100">
-    <div class="workspace-shell">
-        <aside class="workspace-sidebar">
+    <div class="workspace-shell" x-data="{ mobileSidebarOpen: false }">
+        <button type="button" class="workspace-sidebar-toggle" x-show="!mobileSidebarOpen"
+            x-transition.opacity.duration.200ms x-on:click="mobileSidebarOpen = true"
+            x-bind:aria-expanded="mobileSidebarOpen.toString()" aria-controls="workspace-sidebar">
+            <x-ui.icon name="menu" class="h-5 w-5" />
+            <span class="sr-only">Tampilkan sidebar</span>
+        </button>
+
+        <div class="workspace-sidebar-backdrop"
+            x-bind:class="{ 'workspace-sidebar-backdrop--visible': mobileSidebarOpen }"
+            x-on:click="mobileSidebarOpen = false" aria-hidden="true"></div>
+
+        <aside id="workspace-sidebar" class="workspace-sidebar"
+            x-bind:class="{ 'workspace-sidebar--open': mobileSidebarOpen }"
+            x-on:keydown.escape.window="mobileSidebarOpen = false">
+            <button type="button" class="workspace-sidebar-close" x-on:click="mobileSidebarOpen = false">
+                <x-ui.icon name="close" class="h-5 w-5" />
+                <span class="sr-only">Sembunyikan sidebar</span>
+            </button>
             <div class="workspace-sidebar-body">
                 <div class="workspace-sidebar-card">
                     <div class="workspace-sidebar-avatar">
@@ -118,11 +145,12 @@
                 </div>
 
                 <nav class="workspace-nav">
-                    <a href="{{ $moduleDashboardRoute }}" @class([
-                        'workspace-nav-link',
-                        'workspace-nav-link--active' => $isOnModuleDashboard,
-                        'workspace-nav-link--idle' => !$isOnModuleDashboard,
-                    ])>
+                    <a href="{{ $moduleDashboardRoute }}" x-on:click="mobileSidebarOpen = false"
+                        @class([
+                            'workspace-nav-link',
+                            'workspace-nav-link--active' => $isOnModuleDashboard,
+                            'workspace-nav-link--idle' => !$isOnModuleDashboard,
+                        ])>
                         <x-ui.icon name="dashboard" class="h-4 w-4" />
                         <span>Beranda Modul</span>
                     </a>
@@ -138,11 +166,12 @@
 
                         <div class="workspace-nav-group">
                             @if ($hasRoute)
-                                <a href="{{ route($item->route_name) }}" @class([
-                                    'workspace-nav-link',
-                                    'workspace-nav-link--active' => $isCurrent,
-                                    'workspace-nav-link--idle' => !$isCurrent,
-                                ])>
+                                <a href="{{ route($item->route_name) }}" x-on:click="mobileSidebarOpen = false"
+                                    @class([
+                                        'workspace-nav-link',
+                                        'workspace-nav-link--active' => $isCurrent,
+                                        'workspace-nav-link--idle' => !$isCurrent,
+                                    ])>
                                     <x-ui.icon :name="$icon" class="h-4 w-4" />
                                     <span class="workspace-nav-label-text">{{ $item->name }}</span>
                                     <x-ui.icon name="chevron-right" class="workspace-nav-chevron" />
@@ -165,11 +194,12 @@
                                         @endphp
 
                                         @if ($childHasRoute)
-                                            <a href="{{ route($child->route_name) }}" @class([
-                                                'workspace-subnav-link',
-                                                'workspace-subnav-link--active' => $childCurrent,
-                                                'workspace-subnav-link--idle' => !$childCurrent,
-                                            ])>
+                                            <a href="{{ route($child->route_name) }}"
+                                                x-on:click="mobileSidebarOpen = false" @class([
+                                                    'workspace-subnav-link',
+                                                    'workspace-subnav-link--active' => $childCurrent,
+                                                    'workspace-subnav-link--idle' => !$childCurrent,
+                                                ])>
                                                 {{ $child->name }}
                                             </a>
                                         @else
@@ -192,6 +222,10 @@
 
         <main class="workspace-main">
             {{ $slot }}
+
+            @if ($isOnActiveNavbarLanding)
+                <x-private.subnav-links :parent-title="$activeNavbar->name" :items="$subnavbarItems" />
+            @endif
         </main>
     </div>
 
