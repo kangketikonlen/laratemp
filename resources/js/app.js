@@ -42,4 +42,21 @@ Alpine.data('wysiwygEditor', ({ value = '', placeholder = '' } = {}) => ({
     },
 }))
 
+Alpine.data('permissionMatrixSection', () => ({
+    get checkboxes() {
+        return Array.from(this.$root.querySelectorAll('input[data-permission-checkbox]'))
+    },
+    get allChecked() {
+        return this.checkboxes.length > 0 && this.checkboxes.every((checkbox) => checkbox.checked)
+    },
+    toggleAll() {
+        const shouldCheck = !this.allChecked
+
+        this.checkboxes.forEach((checkbox) => {
+            checkbox.checked = shouldCheck
+            checkbox.dispatchEvent(new Event('change', { bubbles: true }))
+        })
+    },
+}))
+
 Alpine.start()

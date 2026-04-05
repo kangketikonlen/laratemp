@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\ErrorLogs\ErrorLogRecorder;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,5 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->report(function (\Throwable $throwable): void {
+            ErrorLogRecorder::record($throwable, request());
+        });
     })->create();

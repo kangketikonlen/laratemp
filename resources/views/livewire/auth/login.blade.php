@@ -21,9 +21,5 @@
         </p>
     </form>
 
-    <x-ui.loading-screen
-        target="login"
-        title="Sedang masuk"
-        message="Kami sedang memverifikasi akun Anda."
-    />
+    <x-ui.loading-screen target="login" title="Sedang masuk" message="Kami sedang memverifikasi akun Anda." />
 </div>

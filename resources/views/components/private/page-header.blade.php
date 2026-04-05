@@ -1,7 +1,4 @@
-@props([
-    'title',
-    'subtitle' => null,
-])
+@props(['title', 'subtitle' => null])
 
 <div class="private-page-header">
     <div>

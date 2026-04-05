@@ -5,6 +5,7 @@ namespace Database\Seeders\Auth;
 use App\Models\Settings\Module;
 use App\Models\Settings\NavigationItem;
 use App\Models\Settings\Role;
+use App\Support\Permissions\PermissionCatalog;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
@@ -17,7 +18,8 @@ class RoleAndPermissionSeeder extends Seeder
 
         $permissions = collect([
             'manage settings',
-        ])->map(fn (string $permission) => Permission::firstOrCreate([
+            ...PermissionCatalog::names(),
+        ])->unique()->map(fn (string $permission) => Permission::firstOrCreate([
             'name' => $permission,
             'guard_name' => 'web',
         ]));

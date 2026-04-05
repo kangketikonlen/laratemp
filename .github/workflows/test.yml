@@ -1,0 +1,126 @@
+name: Test Workflow
+
+on:
+  push:
+    branches-ignore:
+      - stable
+  pull_request:
+    branches-ignore:
+      - stable
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: test-workflow-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  laravel-test:
+    name: Laravel Test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      APP_ENV: testing
+      APP_DEBUG: true
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: testing
+      DB_USERNAME: root
+      DB_PASSWORD: testing
+      CACHE_DRIVER: array
+      QUEUE_CONNECTION: sync
+      SESSION_DRIVER: array
+      MAIL_MAILER: array
+      CACHE_STORE: array
+    services:
+      mariadb:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: testing
+          MYSQL_DATABASE: testing
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -ptesting"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, dom, fileinfo, mysql, sqlite3
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.composer/cache/files
+          key: ${{ runner.os }}-php-8.4-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-8.4-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Prepare environment
+        run: cp .env.example .env
+
+      - name: Generate app key
+        run: php artisan key:generate
+
+      - name: Run test suite
+        run: php artisan test
+
+  create-pr:
+    name: Create Pull Request
+    needs: laravel-test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CURRENT_BRANCH: ${{ github.ref_name }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create pull request to stable
+        run: |
+          existing_pr=$(gh pr list \
+            --state open \
+            --base stable \
+            --head "${CURRENT_BRANCH}" \
+            --json number \
+            --jq '.[0].number')
+
+          if [ -n "${existing_pr}" ]; then
+            echo "Pull request ${existing_pr} already exists for ${CURRENT_BRANCH}."
+            exit 0
+          fi
+
+          if git diff --quiet "origin/stable...origin/${CURRENT_BRANCH}"; then
+            echo "No differences between ${CURRENT_BRANCH} and stable."
+            exit 0
+          fi
+
+          current_date=$(TZ='Asia/Jakarta' date +'%d-%m-%Y %H:%M')
+          pr_title="[${current_date}] ${CURRENT_BRANCH} - Request merge ${CURRENT_BRANCH} to stable branch"
+
+          gh pr create \
+            --base stable \
+            --head "${CURRENT_BRANCH}" \
+            --title "${pr_title}" \
+            --body "Automated pull request from ${CURRENT_BRANCH} to stable branch"

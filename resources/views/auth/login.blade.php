@@ -4,7 +4,8 @@
             <img src="{{ $page->background }}" class="h-full w-full object-cover">
             <div class="absolute inset-0 flex items-end bg-black/40 md:items-center">
                 <div class="px-6 py-8 sm:px-8 md:px-12 md:py-0 lg:px-16">
-                    <div class="max-w-2xl rounded-2xl bg-slate-950/55 px-6 py-5 text-white backdrop-blur-sm sm:px-7 sm:py-6">
+                    <div
+                        class="max-w-2xl rounded-2xl bg-slate-950/55 px-6 py-5 text-white backdrop-blur-sm sm:px-7 sm:py-6">
                         <h1 class="text-3xl font-bold">
                             {{ $page->appName }}
                         </h1>

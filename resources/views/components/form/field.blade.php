@@ -5,7 +5,8 @@
 ])
 
 <div {{ $attributes->class(['private-field']) }}>
-    <label @if (filled($for)) for="{{ $for }}" @endif class="private-label">{{ $label }}</label>
+    <label @if (filled($for)) for="{{ $for }}" @endif
+        class="private-label">{{ $label }}</label>
 
     {{ $slot }}
 

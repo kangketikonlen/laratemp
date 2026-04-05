@@ -1,10 +1,11 @@
 @props([
     'title' => config('app.name'),
-    'description' => 'Application workspace',
+    'description' => 'Ruang kerja aplikasi',
 ])
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,4 +21,5 @@
 
     @livewireScripts
 </body>
+
 </html>

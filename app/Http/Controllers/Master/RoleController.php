@@ -7,15 +7,30 @@ use App\Http\Requests\Master\StoreRoleRequest;
 use App\Http\Requests\Master\UpdateRoleRequest;
 use App\Models\Settings\Module;
 use App\Models\Settings\Role;
+use App\Support\ActivityLogs\LogsUserActivity;
+use App\Support\Permissions\PermissionCatalog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
+    use LogsUserActivity;
+
     public function index(Request $request): View
     {
         $search = trim((string) $request->string('search'));
+        $sort = (string) $request->string('sort', 'display_name');
+        $direction = strtolower((string) $request->string('direction', 'asc'));
+        $allowedSorts = ['display_name', 'name', 'users_count', 'is_system'];
+
+        if (! in_array($sort, $allowedSorts, true)) {
+            $sort = 'display_name';
+        }
+
+        if (! in_array($direction, ['asc', 'desc'], true)) {
+            $direction = 'asc';
+        }
 
         $roles = Role::query()
             ->with(['modules'])
@@ -28,9 +43,10 @@ class RoleController extends Controller
                         ->orWhere('description', 'like', "%{$search}%");
                 });
             })
-            ->orderByDesc('is_system')
-            ->orderBy('display_name')
-            ->orderBy('name')
+            ->orderBy($sort, $direction)
+            ->when($sort !== 'is_system', fn ($query) => $query->orderByDesc('is_system'))
+            ->when($sort !== 'display_name', fn ($query) => $query->orderByRaw('COALESCE(display_name, name) asc'))
+            ->when($sort !== 'name', fn ($query) => $query->orderBy('name'))
             ->paginate(10)
             ->withQueryString();
 
@@ -38,6 +54,8 @@ class RoleController extends Controller
             'title' => 'Role',
             'description' => 'Manage role records from the master section.',
             'search' => $search,
+            'sort' => $sort,
+            'direction' => $direction,
             'roles' => $roles,
         ]);
     }
@@ -50,6 +68,8 @@ class RoleController extends Controller
             'role' => new Role(['guard_name' => 'web']),
             'modules' => Module::query()->orderBy('sort_order')->orderBy('name')->get(),
             'selectedModules' => [],
+            'permissionCatalog' => PermissionCatalog::sections(),
+            'selectedPermissions' => [],
             'isEdit' => false,
         ]);
     }
@@ -58,6 +78,19 @@ class RoleController extends Controller
     {
         $role = Role::query()->create($request->validatedRoleData());
         $role->modules()->sync($request->validatedModuleIds());
+        $role->syncPermissions($request->validatedPermissionNames());
+
+        $this->logUserActivity(
+            activity: 'Created role',
+            category: 'user',
+            status: 'success',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'role' => $role->name,
+                'modules' => collect($role->modules)->pluck('name')->all(),
+            ],
+        );
 
         return redirect()
             ->route('master.roles.index')
@@ -74,6 +107,8 @@ class RoleController extends Controller
             'role' => $role,
             'modules' => Module::query()->orderBy('sort_order')->orderBy('name')->get(),
             'selectedModules' => $role->modules->pluck('id')->all(),
+            'permissionCatalog' => PermissionCatalog::sections(),
+            'selectedPermissions' => $role->permissions->pluck('name')->all(),
             'isEdit' => true,
         ]);
     }
@@ -90,6 +125,19 @@ class RoleController extends Controller
 
         $role->update($request->validatedRoleData());
         $role->modules()->sync($request->validatedModuleIds());
+        $role->syncPermissions($request->validatedPermissionNames());
+
+        $this->logUserActivity(
+            activity: 'Updated role',
+            category: 'user',
+            status: 'success',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'role' => $role->name,
+                'modules' => $role->modules()->pluck('name')->all(),
+            ],
+        );
 
         return redirect()
             ->route('master.roles.index')
@@ -108,6 +156,17 @@ class RoleController extends Controller
 
         $roleName = $role->name;
         $role->delete();
+
+        $this->logUserActivity(
+            activity: 'Deleted role',
+            category: 'user',
+            status: 'warning',
+            user: request()->user(),
+            request: request(),
+            context: [
+                'role' => $roleName,
+            ],
+        );
 
         return redirect()
             ->route('master.roles.index')

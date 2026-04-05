@@ -7,15 +7,30 @@ use App\Http\Requests\Master\StoreUserRequest;
 use App\Http\Requests\Master\UpdateUserRequest;
 use App\Models\Settings\Role;
 use App\Models\User;
+use App\Support\ActivityLogs\LogsUserActivity;
+use App\Support\Permissions\PermissionCatalog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    use LogsUserActivity;
+
     public function index(Request $request): View
     {
         $search = trim((string) $request->string('search'));
+        $sort = (string) $request->string('sort', 'name');
+        $direction = strtolower((string) $request->string('direction', 'asc'));
+        $allowedSorts = ['name', 'username', 'email', 'created_at'];
+
+        if (! in_array($sort, $allowedSorts, true)) {
+            $sort = 'name';
+        }
+
+        if (! in_array($direction, ['asc', 'desc'], true)) {
+            $direction = 'asc';
+        }
 
         $users = User::query()
             ->with('roles')
@@ -27,8 +42,9 @@ class UserController extends Controller
                         ->orWhere('email', 'like', "%{$search}%");
                 });
             })
-            ->orderBy('name')
-            ->orderBy('username')
+            ->orderBy($sort, $direction)
+            ->when($sort !== 'name', fn ($query) => $query->orderBy('name'))
+            ->when($sort !== 'username', fn ($query) => $query->orderBy('username'))
             ->paginate(10)
             ->withQueryString();
 
@@ -36,6 +52,8 @@ class UserController extends Controller
             'title' => 'User',
             'description' => 'Manage user records from the master section.',
             'search' => $search,
+            'sort' => $sort,
+            'direction' => $direction,
             'users' => $users,
         ]);
     }
@@ -48,6 +66,8 @@ class UserController extends Controller
             'user' => new User,
             'roles' => Role::query()->orderBy('display_name')->orderBy('name')->get(),
             'selectedRoles' => [],
+            'permissionCatalog' => PermissionCatalog::sections(),
+            'selectedPermissions' => [],
             'isEdit' => false,
         ]);
     }
@@ -56,6 +76,19 @@ class UserController extends Controller
     {
         $user = User::query()->create($request->validatedUserData());
         $user->syncRoles($request->validatedRoleNames());
+        $user->syncPermissions($request->validatedPermissionNames());
+
+        $this->logUserActivity(
+            activity: 'Created user account',
+            category: 'user',
+            status: 'success',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'username' => $user->username,
+                'roles' => $request->validatedRoleNames(),
+            ],
+        );
 
         return redirect()
             ->route('master.users.index')
@@ -64,7 +97,7 @@ class UserController extends Controller
 
     public function edit(User $user): View
     {
-        $user->load('roles');
+        $user->load('roles', 'permissions');
 
         return view('auth.master.users.form', [
             'title' => 'User',
@@ -72,6 +105,8 @@ class UserController extends Controller
             'user' => $user,
             'roles' => Role::query()->orderBy('display_name')->orderBy('name')->get(),
             'selectedRoles' => $user->roles->pluck('name')->all(),
+            'permissionCatalog' => PermissionCatalog::sections(),
+            'selectedPermissions' => $user->permissions->pluck('name')->all(),
             'isEdit' => true,
         ]);
     }
@@ -80,6 +115,19 @@ class UserController extends Controller
     {
         $user->update($request->validatedUserData());
         $user->syncRoles($request->validatedRoleNames());
+        $user->syncPermissions($request->validatedPermissionNames());
+
+        $this->logUserActivity(
+            activity: 'Updated user account',
+            category: 'user',
+            status: 'success',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'username' => $user->username,
+                'roles' => $request->validatedRoleNames(),
+            ],
+        );
 
         return redirect()
             ->route('master.users.index')
@@ -99,6 +147,17 @@ class UserController extends Controller
         $username = $user->username;
 
         $user->delete();
+
+        $this->logUserActivity(
+            activity: 'Deleted user account',
+            category: 'user',
+            status: 'warning',
+            user: $request->user(),
+            request: $request,
+            context: [
+                'username' => $username,
+            ],
+        );
 
         return redirect()
             ->route('master.users.index')
