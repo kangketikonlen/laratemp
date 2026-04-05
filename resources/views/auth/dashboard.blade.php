@@ -7,7 +7,8 @@
                         <p class="dashboard-kicker">Ruang Kerja Internal</p>
                         <h1 class="dashboard-title">Dashboard</h1>
                         <p class="dashboard-summary">
-                            Ringkasan cepat untuk ruang kerja internal Anda. Pantau institusi, buka modul utama, dan lihat catatan perubahan terbaru dari satu halaman utama.
+                            Ringkasan cepat untuk ruang kerja internal Anda. Pantau institusi, buka modul utama, dan
+                            lihat catatan perubahan terbaru dari satu halaman utama.
                         </p>
                     </div>
 
@@ -80,7 +81,8 @@
                                     <div class="dashboard-note">
                                         <span class="mt-1 h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
                                         <div>
-                                            <p class="font-medium text-slate-800">{{ $note->version }} · {{ $note->title }}</p>
+                                            <p class="font-medium text-slate-800">{{ $note->version }} ·
+                                                {{ $note->title }}</p>
                                             @if (filled($note->previewText()))
                                                 <p class="mt-1">{{ $note->previewText() }}</p>
                                             @endif
@@ -106,7 +108,8 @@
                             @if ($workProgressItems->isEmpty())
                                 <div class="dashboard-progress-card dashboard-progress-card--empty">
                                     <p class="dashboard-progress-empty-title">Belum ada pekerjaan aktif.</p>
-                                    <p class="dashboard-progress-empty-copy">Tambahkan item di administration work progress untuk menampilkan agenda tim di dashboard.</p>
+                                    <p class="dashboard-progress-empty-copy">Tambahkan item di administration work
+                                        progress untuk menampilkan agenda tim di dashboard.</p>
                                 </div>
                             @else
                                 @foreach ($workProgressItems as $item)
@@ -123,14 +126,17 @@
                                             </div>
 
                                             <div class="dashboard-progress-tags">
-                                                <span class="private-role-badge private-role-badge--{{ $item->status }}">{{ ['planned' => 'Direncanakan', 'in_progress' => 'Berjalan', 'done' => 'Selesai', 'blocked' => 'Terhambat'][$item->status] ?? \Illuminate\Support\Str::headline($item->status) }}</span>
-                                                <span class="private-role-badge private-role-badge--priority-{{ $item->priority }}">{{ ['low' => 'Rendah', 'medium' => 'Sedang', 'high' => 'Tinggi'][$item->priority] ?? ucfirst($item->priority) }}</span>
+                                                <span
+                                                    class="private-role-badge private-role-badge--{{ $item->status }}">{{ ['planned' => 'Direncanakan', 'in_progress' => 'Berjalan', 'done' => 'Selesai', 'blocked' => 'Terhambat'][$item->status] ?? \Illuminate\Support\Str::headline($item->status) }}</span>
+                                                <span
+                                                    class="private-role-badge private-role-badge--priority-{{ $item->priority }}">{{ ['low' => 'Rendah', 'medium' => 'Sedang', 'high' => 'Tinggi'][$item->priority] ?? ucfirst($item->priority) }}</span>
                                             </div>
                                         </div>
 
                                         <div class="dashboard-progress-meter">
                                             <div class="dashboard-progress-meter-track">
-                                                <span class="dashboard-progress-meter-fill" style="width: {{ max(0, min(100, $item->progress)) }}%"></span>
+                                                <span class="dashboard-progress-meter-fill"
+                                                    style="width: {{ max(0, min(100, $item->progress)) }}%"></span>
                                             </div>
                                             <span class="dashboard-progress-percent">{{ $item->progress }}%</span>
                                         </div>
@@ -165,21 +171,19 @@
                             <div class="dashboard-modules-grid">
                                 @foreach ($modules as $module)
                                     @php
-                                        $hasRoute = filled($module->route_name) && \Illuminate\Support\Facades\Route::has($module->route_name);
+                                        $hasRoute =
+                                            filled($module->route_name) &&
+                                            \Illuminate\Support\Facades\Route::has($module->route_name);
                                         $tag = $hasRoute ? 'a' : 'div';
                                         $iconName = $module->icon === 'settings' ? 'settings' : 'sparkles';
                                     @endphp
 
-                                    <{{ $tag }}
-                                        @class([
-                                            'group',
-                                            'dashboard-module-card',
-                                            'dashboard-module-card--link' => $hasRoute,
-                                        ])
-                                        @if ($hasRoute)
-                                            href="{{ route($module->route_name) }}"
-                                        @endif
-                                    >
+                                    <{{ $tag }} @class([
+                                        'group',
+                                        'dashboard-module-card',
+                                        'dashboard-module-card--link' => $hasRoute,
+                                    ])
+                                        @if ($hasRoute) href="{{ route($module->route_name) }}" @endif>
                                         <div class="dashboard-module-glow"></div>
 
                                         <div class="relative min-h-55">
@@ -189,8 +193,11 @@
 
                                             <div class="mt-5 space-y-3">
                                                 <div class="min-w-0">
-                                                    <h3 class="text-base font-semibold text-slate-900">{{ $module->name }}</h3>
-                                                    <p class="mt-1 text-[11px] uppercase tracking-[0.24em] text-slate-400">{{ $module->slug }}</p>
+                                                    <h3 class="text-base font-semibold text-slate-900">
+                                                        {{ $module->name }}</h3>
+                                                    <p
+                                                        class="mt-1 text-[11px] uppercase tracking-[0.24em] text-slate-400">
+                                                        {{ $module->slug }}</p>
                                                 </div>
 
                                                 @if ($module->is_active)
@@ -205,13 +212,15 @@
                                             </p>
 
                                             @if ($hasRoute)
-                                                <div class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-sky-700">
+                                                <div
+                                                    class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-sky-700">
                                                     <span>Buka modul</span>
-                                                    <span aria-hidden="true" class="transition group-hover:translate-x-1">-></span>
+                                                    <span aria-hidden="true"
+                                                        class="transition group-hover:translate-x-1">-></span>
                                                 </div>
                                             @endif
                                         </div>
-                                    </{{ $tag }}>
+                                        </{{ $tag }}>
                                 @endforeach
                             </div>
                         @endif

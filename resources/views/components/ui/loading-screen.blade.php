@@ -4,13 +4,8 @@
     'message' => 'Mohon tunggu sebentar.',
 ])
 
-<div
-    wire:loading.delay.flex
-    @if ($target)
-        wire:target="{{ $target }}"
-    @endif
-    class="loading-screen"
->
+<div wire:loading.delay.flex @if ($target) wire:target="{{ $target }}" @endif
+    class="loading-screen">
     <div class="loading-screen__card">
         <div class="loading-spinner"></div>
 

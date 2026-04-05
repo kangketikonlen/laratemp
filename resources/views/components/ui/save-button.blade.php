@@ -4,13 +4,5 @@
     'type' => 'submit',
 ])
 
-<x-ui.button
-    :type="$type"
-    variant="primary"
-    :block="false"
-    icon="save"
-    :label="$label"
-    :tooltip="$tooltip ?? $label"
-    :icon-only="true"
-    {{ $attributes }}
-/>
+<x-ui.button :type="$type" variant="primary" :block="false" icon="save" :label="$label" :tooltip="$tooltip ?? $label"
+    :icon-only="true" {{ $attributes }} />

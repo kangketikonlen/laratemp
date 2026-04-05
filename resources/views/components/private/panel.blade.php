@@ -1,8 +1,4 @@
-@props([
-    'title',
-    'description' => null,
-    'badge' => null,
-])
+@props(['title', 'description' => null, 'badge' => null])
 
 <div {{ $attributes->class(['private-panel']) }}>
     <div class="flex items-center justify-between gap-4">

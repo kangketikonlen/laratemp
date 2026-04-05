@@ -44,7 +44,8 @@
     @endif
 
     <x-form.field :for="$id" :label="$label" :error="$error">
-        <input id="{{ $id }}" name="{{ $inputName }}" type="file" accept="{{ $accept }}" class="input-file-base">
+        <input id="{{ $id }}" name="{{ $inputName }}" type="file" accept="{{ $accept }}"
+            class="input-file-base">
 
         @if (filled($helper))
             <p class="private-helper-text">{{ $helper }}</p>

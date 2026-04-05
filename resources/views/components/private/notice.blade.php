@@ -1,7 +1,4 @@
-@props([
-    'title',
-    'message',
-])
+@props(['title', 'message'])
 
 <div class="private-panel-soft">
     <p class="text-base font-semibold sm:text-lg">{{ $title }}</p>

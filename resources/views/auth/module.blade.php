@@ -6,9 +6,7 @@
             </x-slot:actions>
         </x-private.page-header>
 
-        <x-private.notice
-            :title="'Anda sedang berada di section '.$title.'.'"
-            :message="$description.' Gunakan sidebar untuk berpindah ke section lain atau ke sub navigation yang tersedia.'"
-        />
+        <x-private.notice :title="'Anda sedang berada di section ' . $title . '.'" :message="$description .
+            ' Gunakan sidebar untuk berpindah ke section lain atau ke sub navigation yang tersedia.'" />
     </div>
 </x-layouts.private-module>

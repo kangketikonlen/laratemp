@@ -1,7 +1,4 @@
-@props([
-    'title',
-    'description' => null,
-])
+@props(['title', 'description' => null])
 
 <section {{ $attributes->class(['institution-settings-section']) }}>
     <div class="institution-settings-section-head">

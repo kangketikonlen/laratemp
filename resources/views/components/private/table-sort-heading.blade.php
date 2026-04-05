@@ -1,10 +1,4 @@
-@props([
-    'href',
-    'label',
-    'active' => false,
-    'direction' => 'asc',
-    'thClass' => null,
-])
+@props(['href', 'label', 'active' => false, 'direction' => 'asc', 'thClass' => null])
 
 <th @class([$thClass])>
     <a href="{{ $href }}" class="private-table-sort">
