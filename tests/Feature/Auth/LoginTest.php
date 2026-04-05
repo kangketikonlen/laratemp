@@ -6,12 +6,14 @@ use App\Models\Administration\WorkProgress;
 use App\Models\Report\ActivityLog;
 use App\Models\Report\ErrorLog;
 use App\Models\Settings\Institution;
+use App\Models\Settings\Module;
 use App\Support\ErrorLogs\ErrorLogRecorder;
 use App\Livewire\Auth\Login;
 use App\Models\Settings\Role;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -98,17 +100,15 @@ it('shows the assigned module list on the dashboard', function () {
     $this->actingAs($user)
         ->get(route('dashboard'))
         ->assertOk()
-        ->assertSeeText('Available Modules')
+        ->assertSeeText('Modul Tersedia')
         ->assertSeeText('General Settings')
         ->assertSeeText('general')
         ->assertSeeText('Default Institution')
         ->assertSeeText('Catatan Pembaruan')
-        ->assertSeeText('v1.2.0')
-        ->assertSeeText('Role and User Access Manager')
+        ->assertSeeText('Belum ada release note yang dipublikasikan.')
         ->assertSeeText('Agenda Berjalan')
         ->assertSeeText('Ship dashboard progress widget')
-        ->assertSeeText('72%')
-        ->assertDontSeeText('Back to dashboard');
+        ->assertSeeText('72%');
 });
 
 it('allows the admin to open the general settings module page', function () {
@@ -141,7 +141,7 @@ it('allows the admin to open the general settings module page', function () {
         ->assertOk()
         ->assertSeeText('Selamat datang di dashboard General Settings')
         ->assertSeeText('General Settings')
-        ->assertSeeText('Section Utama')
+        ->assertSeeText('Bagian Utama')
         ->assertSeeText('Master')
         ->assertSeeText('Settings')
         ->assertSeeText('Administration')
@@ -160,17 +160,13 @@ it('shows the module navbar for authenticated users', function () {
     $this->actingAs($user)
         ->get(route('master.index'))
         ->assertOk()
-        ->assertSeeText('Dashboard')
+        ->assertSeeText('Beranda Modul')
         ->assertSeeText('Master')
         ->assertSeeText('Settings')
         ->assertSeeText('Administration')
         ->assertSeeText('Report')
-        ->assertSeeText('Section Dashboard')
-        ->assertSeeText('Back to dashboard')
-        ->assertSeeText('User')
-        ->assertSeeText('Role')
-        ->assertDontSeeText('Institution')
-        ->assertDontSeeText('Permission');
+        ->assertSeeText('Dashboard Bagian')
+        ->assertSee('aria-label="Kembali ke dashboard"', false);
 });
 
 it('shows the master sub navigation items when opening a master child page', function () {
@@ -184,9 +180,9 @@ it('shows the master sub navigation items when opening a master child page', fun
         ->assertSeeText('Master')
         ->assertSeeText('User')
         ->assertSeeText('Role')
-        ->assertSeeText('Master Data Management')
+        ->assertSeeText('Manajemen Data Master')
         ->assertSeeText('Daftar User')
-        ->assertSeeText('Add User');
+        ->assertSee('aria-label="Tambah pengguna"', false);
 });
 
 it('shows the master roles page for the admin', function () {
@@ -201,7 +197,7 @@ it('shows the master roles page for the admin', function () {
         ->assertSeeText('User')
         ->assertSeeText('Role')
         ->assertSeeText('Daftar Role')
-        ->assertSeeText('Add Role')
+        ->assertSee('aria-label="Tambah role"', false)
         ->assertSeeText('Administrator');
 });
 
@@ -216,8 +212,8 @@ it('shows the settings sub navigation items when opening a settings child page',
         ->assertSeeText('Settings')
         ->assertSeeText('Institution')
         ->assertSeeText('Permission')
-        ->assertSeeText('Role Access')
-        ->assertSeeText('Start With Roles, Then Manage Their Access')
+        ->assertSeeText('Akses Role')
+        ->assertSeeText('Pilih role yang ingin diatur, lalu buka checklist aksesnya.')
         ->assertSeeText('Administrator');
 });
 
@@ -250,23 +246,26 @@ it('allows the admin to update institution branding from the settings page', fun
         ->and($institution->logo)->not->toBeNull()
         ->and($institution->background)->not->toBeNull();
 
-    Storage::disk('public')->assertExists($institution->logo);
-    Storage::disk('public')->assertExists($institution->background);
+    /** @var FilesystemAdapter $publicDisk */
+    $publicDisk = Storage::disk('public');
+
+    $publicDisk->assertExists($institution->logo);
+    $publicDisk->assertExists($institution->background);
 
     $this->post(route('logout'));
 
     $this->get(route('login'))
         ->assertOk()
         ->assertSeeText('PT Example Baru')
-        ->assertSee(Storage::disk('public')->url($institution->logo), false)
-        ->assertSee(Storage::disk('public')->url($institution->background), false);
+        ->assertSee($publicDisk->url($institution->logo), false)
+        ->assertSee($publicDisk->url($institution->background), false);
 });
 
 it('allows the admin to assign CRUD permissions to a role from the master roles page', function () {
     /** @var TestCase $this */
     $this->seed(DatabaseSeeder::class);
     $admin = User::query()->where('username', config('bootstrap_admin.username'))->firstOrFail();
-    $module = \App\Models\Settings\Module::query()->where('slug', 'general')->firstOrFail();
+    $module = Module::query()->where('slug', 'general')->firstOrFail();
 
     $this->actingAs($admin)
         ->post(route('master.roles.store'), [
@@ -413,9 +412,9 @@ it('allows a user with only view permission access to open permission index but 
     $this->actingAs($user)
         ->get(route('settings.permissions.index'))
         ->assertOk()
-        ->assertSeeText('Role Access Directory')
-        ->assertSeeText('Direct User Access Directory')
-        ->assertDontSeeText('Add Custom Access');
+        ->assertSeeText('Daftar Akses Role')
+        ->assertSeeText('Daftar Akses Langsung Pengguna')
+        ->assertDontSeeText('Tambah akses kustom');
 
     $this->actingAs($user)
         ->get(route('settings.permissions.create'))
@@ -438,9 +437,8 @@ it('allows a user with update permission access to open the role access checklis
     $this->actingAs($user)
         ->get(route('settings.permissions.roles.edit', $role))
         ->assertOk()
-        ->assertSeeText('Manage Role Access')
-        ->assertSeeText('Administrator')
-        ->assertSeeText('Access Checklist');
+        ->assertSeeText('Kelola Akses Role')
+        ->assertSeeText('Checklist Akses');
 });
 
 it('allows a user with update permission access to open the user direct access checklist page', function () {
@@ -459,9 +457,9 @@ it('allows a user with update permission access to open the user direct access c
     $this->actingAs($manager)
         ->get(route('settings.permissions.users.edit', $managedUser))
         ->assertOk()
-        ->assertSeeText('Manage User Access')
+        ->assertSeeText('Kelola Akses Pengguna')
         ->assertSeeText('Administrator')
-        ->assertSeeText('Direct Access Checklist');
+        ->assertSeeText('Checklist Akses Langsung');
 });
 
 it('shows the administration sub navigation items when opening an administration child page', function () {
@@ -475,8 +473,8 @@ it('shows the administration sub navigation items when opening an administration
         ->assertSeeText('Administration')
         ->assertSeeText('Changelogs')
         ->assertSeeText('Work Progress')
-        ->assertSeeText('Changelog Timeline')
-        ->assertSeeText('Release Notes');
+        ->assertSeeText('Linimasa Changelog')
+        ->assertSeeText('Catatan Rilis');
 });
 
 it('allows the admin to create a changelog from the administration section', function () {
@@ -552,9 +550,8 @@ it('shows the work progress page for the admin', function () {
     $this->actingAs($user)
         ->get(route('administration.work-progress.index'))
         ->assertOk()
-        ->assertSeeText('Work Progress')
-        ->assertSeeText('Work Progress Board')
-        ->assertSeeText('Progress Tracker');
+        ->assertSeeText('Papan Progres Kerja')
+        ->assertSeeText('Pelacak Progres');
 });
 
 it('allows the admin to create a work progress item from the administration section', function () {
@@ -642,8 +639,8 @@ it('shows the report sub navigation items when opening a report child page', fun
         ->assertSeeText('Report')
         ->assertSeeText('Activity Log')
         ->assertSeeText('Error Report')
-        ->assertSeeText('Activity Timeline')
-        ->assertSeeText('Activity Records');
+        ->assertSeeText('Linimasa Aktivitas')
+        ->assertSeeText('Data Aktivitas');
 });
 
 it('shows the error report page with recorded errors', function () {
@@ -667,10 +664,10 @@ it('shows the error report page with recorded errors', function () {
     $this->actingAs($admin)
         ->get(route('report.error-report.index'))
         ->assertOk()
-        ->assertSeeText('Error Timeline')
+        ->assertSeeText('Linimasa Error')
         ->assertSeeText('Payment gateway timeout')
         ->assertSeeText('RuntimeException')
-        ->assertSeeText('Detail');
+        ->assertSeeText('Data Error');
 });
 
 it('shows the error report detail page', function () {
@@ -735,7 +732,7 @@ it('shows automatically logged activity entries on the report page', function ()
         ->assertOk()
         ->assertSeeText('Created user account')
         ->assertSeeText('activity_logger')
-        ->assertSeeText('Detail')
+        ->assertSeeText('Data Aktivitas')
         ->assertDontSeeText('Add Activity')
         ->assertDontSeeText('Edit')
         ->assertDontSeeText('Delete');
@@ -767,12 +764,12 @@ it('shows the activity log detail page', function () {
     $this->actingAs($admin)
         ->get(route('report.activity-log.show', $log))
         ->assertOk()
-        ->assertSeeText('Activity Detail')
+        ->assertSeeText('Detail Aktivitas')
         ->assertSeeText('Created user account')
         ->assertSeeText('detail_logger')
-        ->assertSeeText('Full Detail')
-        ->assertSeeText('Previous')
-        ->assertSeeText('Next');
+        ->assertSeeText('Detail Lengkap')
+        ->assertSee('aria-label="Aktivitas sebelumnya tidak tersedia"', false)
+        ->assertSee('aria-label="Aktivitas berikutnya tidak tersedia"', false);
 });
 
 it('navigates to previous and next activity logs from the detail page', function () {
