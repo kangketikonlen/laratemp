@@ -4,8 +4,7 @@
     $tag = filled($href) ? 'a' : 'div';
 @endphp
 
-<{{ $tag }}
-    {{ $attributes->class(['workspace-tile', 'workspace-tile--link' => filled($href), $cardClass]) }}
+<{{ $tag }} {{ $attributes->class(['workspace-tile', 'workspace-tile--link' => filled($href), $cardClass]) }}
     @if (filled($href)) href="{{ $href }}" @endif>
     <div class="workspace-tile-head">
         <h3 class="workspace-tile-title">{{ $title }}</h3>

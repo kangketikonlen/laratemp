@@ -15,7 +15,8 @@
             <x-private.feedback :message="$errors->first()" variant="danger" />
         @endif
 
-        <form method="POST" action="{{ route('settings.institutions.update') }}" enctype="multipart/form-data" class="space-y-8">
+        <form method="POST" action="{{ route('settings.institutions.update') }}" enctype="multipart/form-data"
+            class="space-y-8">
             @csrf
             @method('PUT')
 
