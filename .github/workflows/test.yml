@@ -77,9 +77,6 @@ jobs:
       - name: Generate app key
         run: php artisan key:generate
 
-      - name: Run migrations and seeders
-        run: php artisan migrate --seed --force
-
       - name: Run test suite
         run: php artisan test
 
