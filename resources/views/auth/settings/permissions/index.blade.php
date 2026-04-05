@@ -31,28 +31,6 @@
             <x-private.feedback :message="$errors->first()" variant="danger" />
         @endif
 
-        <section class="institution-settings-hero">
-            <div>
-                <p class="institution-settings-kicker">Alur Akses</p>
-                <h2 class="institution-settings-title">Mulai dari Role, Lalu Kelola Aksesnya</h2>
-                <p class="institution-settings-copy">
-                    Halaman ini menampilkan semua role yang ada di sistem. Buka salah satu role untuk mencentang akses
-                    yang boleh mereka gunakan.
-                </p>
-            </div>
-
-            <div class="institution-settings-hero-grid">
-                <div class="institution-settings-stat">
-                    <span class="institution-settings-stat-label">Akses Sistem</span>
-                    <span class="institution-settings-stat-value">{{ $catalogPermissionsCount }} aksi standar</span>
-                </div>
-                <div class="institution-settings-stat">
-                    <span class="institution-settings-stat-label">Role Tersedia</span>
-                    <span class="institution-settings-stat-value">{{ $roles->total() }} role</span>
-                </div>
-            </div>
-        </section>
-
         @can('manage settings')
             <x-private.notice title="Alat Akses Lanjutan"
                 message="Aturan akses kustom hanya ditampilkan untuk administrator tingkat lanjut. Admin biasa cukup memakai alur kelola akses pada role atau pengguna." />
